@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "defaultDayLabel": "第 4 天",
+  "defaultWeatherLabel": "晴朗",
+  "messages": [
+    {
+      "id": "mail_day1_1",
+      "sender": "妹妹",
+      "day": 1,
+      "time": "02:52",
+      "label": "第 1 封",
+      "title": "第一天的邮件",
+      "body": "我的哥哥被雷劈死了。\n\n这么说可能看起来很奇怪也很好笑，但是看着他焦烂的尸体，我实在是笑不出来。\n\n以后他的邮箱收件箱就是我的赛博日记本了，反正他不能反对。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day3_1",
+      "sender": "妹妹",
+      "day": 3,
+      "time": "08:53",
+      "label": "第 1 封",
+      "title": "第三天的邮件",
+      "body": "不知为什么，躁动的情绪一直按耐不下来，心脏一直跳得很快很难受。\n\n爸妈要我帮忙收拾哥哥的遗物。我翻箱倒柜居然找到了一个美少女手办。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day7_1",
+      "sender": "妹妹",
+      "day": 7,
+      "time": "10:16",
+      "label": "第 1 封",
+      "title": "第七天的邮件 01",
+      "body": "我还以为今天就是哥哥的头七，结果被人家提醒了才知道，葬礼后的第七天不算。\n\n写到这里就饿了，想吃水果。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day7_2",
+      "sender": "妹妹",
+      "day": 7,
+      "time": "12:08",
+      "label": "第 2 封",
+      "title": "第七天的邮件 02",
+      "body": "好饿，想吃水果。\n\n枣子和苹果都行，我不挑。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day7_3",
+      "sender": "妹妹",
+      "day": 7,
+      "time": "12:54",
+      "label": "第 3 封",
+      "title": "第七天的邮件 03",
+      "body": "我的水果呢？\n\n楼下的水果店有很好的水果，枣子很脆，苹果也比一般的甜。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day9_1",
+      "sender": "妹妹",
+      "day": 9,
+      "time": "21:24",
+      "label": "第 1 封",
+      "title": "第九天的邮件",
+      "body": "扫地机器人重新运转起来了。\n\n上线打游戏时被人问了怎么最近都没见和哥哥组队，突然难过了，一晚上没睡。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day12_1",
+      "sender": "妹妹",
+      "day": 12,
+      "time": "13:40",
+      "label": "第 1 封",
+      "title": "第十二天的邮件 01",
+      "body": "老师找我了。真不知他现在才来找我谈话有什么用。\n\n我真的不想和老师面谈。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day12_2",
+      "sender": "妹妹",
+      "day": 12,
+      "time": "14:05",
+      "label": "第 2 封",
+      "title": "第十二天的邮件 02",
+      "body": "不许去。\n\n哥哥，快看邮件。\n\n外面没有风。",
+      "is_read_default": true
+    },
+    {
+      "id": "mail_day15_1",
+      "sender": "妹妹",
+      "day": 15,
+      "time": "18:30",
+      "label": "第 1 封",
+      "title": "第十五天的邮件",
+      "body": "我的口红不见了，明明之前把它放在梳妆台上的。\n\n那是哥哥买给我的成年生日礼物，丢了怪可惜的。",
+      "is_read_default": false
+    },
+    {
+      "id": "mail_day30_1",
+      "sender": "妹妹",
+      "day": 30,
+      "time": "16:12",
+      "label": "第 1 封",
+      "title": "第三十天的邮件",
+      "body": "想起一件有趣的事，中学时喜欢哥哥的女生曾经给他送了球鞋球衣作为生日礼物。\n\n这是我和哥哥之间的小秘密。",
+      "is_read_default": false
+    },
+    {
+      "id": "mail_day40_1",
+      "sender": "妹妹",
+      "day": 40,
+      "time": "22:08",
+      "label": "第 1 封",
+      "title": "第四十天的邮件",
+      "body": "这两天不好出门。外面电闪雷鸣，乌云阴沉得仿佛走到楼顶伸出手就能摸到。\n\n今天还是不去哥哥房间好了。",
+      "is_read_default": false
+    }
+  ]
+}

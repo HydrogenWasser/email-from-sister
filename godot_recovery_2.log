@@ -1,0 +1,129 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Unrecognized output string "misc2" in mapping:
+030000000d0f00000202000000000000,Horipad O Nintendo Switch 2 Controller,a:b1,b:b0,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,misc1:b13,misc2:b14,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b3,y:b2,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00009601000000000000,Horipad Steam,a:b0,b:b1,back:b10,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b6,leftstick:b13,lefttrigger:b8,leftx:a0,lefty:a1,misc2:b2,paddle1:b5,paddle2:b15,paddle3:b18,paddle4:b19,rightshoulder:b7,rightstick:b14,righttrigger:b9,rightx:a3,righty:a4,start:b11,x:b3,y:b4,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000007e0500006920000000000000,Nintendo Switch 2 Pro Controller,a:b0,b:b1,back:b14,dpdown:b8,dpleft:b10,dpright:b9,dpup:b11,guide:b16,leftshoulder:b12,leftstick:b15,lefttrigger:b13,leftx:a0,lefty:a1~,misc1:b17,misc2:b20,paddle1:b18,paddle2:b19,rightshoulder:b4,rightstick:b7,righttrigger:b5,rightx:a2,righty:a3~,start:b6,x:b2,y:b3,platform:Windows,
+Native OpenGL API detected: 3.3: NVIDIA - NVIDIA GeForce RTX 4070
+NVAPI: Init OK!
+NVAPI: Profile not found, creating...
+NVAPI: Application not found in profile, creating...
+NVAPI: Error creating application: NVAPI_EXECUTABLE_ALREADY_IN_USE(code -167)
+SDL: Gamepad XInput Controller connected
+SDL: Init OK!
+Using "winink" pen tablet driver...
+Shader 'CanvasSdfShaderGLES3' SHA256: 341995213a7a8fe5fabca138a9cc0527f4321a1c853a66f1627414abbec9adb3
+Shader 'SkeletonShaderGLES3' SHA256: fd835fa9dbafd5e2d97e5d17d9f28734febc4e6c709d6bbc081fb03d573c30e3
+Shader 'ParticlesShaderGLES3' SHA256: 626b5ddbcf83e7297a203dc843c7e74dff97164c58abe4ec261455f9673ae489
+Shader 'ParticlesCopyShaderGLES3' SHA256: 577195cfc7f0aa4e94109f47cb520bc2255b7252a0d4e4d94d64c9e81c95f642
+Shader 'CopyShaderGLES3' SHA256: ec3372d8fc86dec07d81cb8bcc889e0ed118b61e039bf8778228d2f8bd88a393
+Shader 'CubemapFilterShaderGLES3' SHA256: 000d90678303340c638c2a188eb5423410bf91aae2d1287d516f2817be39f69e
+Shader 'GlowShaderGLES3' SHA256: ddc48d9eb376e3a656860fbb3904c949de1aa6f2afb88f8ca22e0db4331fcc72
+Shader 'PostShaderGLES3' SHA256: 8c415b6eabd1471e310cab7a2a121530920efa515d6e4fd7472261098afd1cec
+Shader 'FeedShaderGLES3' SHA256: 51f2db2252a06d2d6998e505b3d1f83bc880deea287f9dd0bd2731bf3e3942bf
+Shader 'CanvasShaderGLES3' SHA256: e4d080ddcf1832858db098acafcc87722d26ebef948da9d8b8aa96a6b6d8d2af
+Shader 'CanvasOcclusionShaderGLES3' SHA256: f8b693f987c563277f919949694f8f813e58e91ca36fbcba2795cec496dadc3d
+Shader 'SceneShaderGLES3' SHA256: e9992a07815d78594907c7ae9dd3219292cd09a5d7fb4c4df06103034c73058b
+Shader 'SkyShaderGLES3' SHA256: b9e391f5215d2b8d4dc5996770e6ebfaec73a8c8a7e0960c672ab543a618b5a8
+OpenGL API 3.3.0 NVIDIA 595.97 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070
+WASAPI: Activated output_device using IAudioClient3 interface
+WASAPI: wFormatTag = 65534
+WASAPI: nChannels = 2
+WASAPI: nSamplesPerSec = 48000
+WASAPI: nAvgBytesPerSec = 384000
+WASAPI: nBlockAlign = 8
+WASAPI: wBitsPerSample = 32
+WASAPI: cbSize = 22
+WASAPI: mix_rate = 48000
+WASAPI: fundamental_period_frames = 480
+WASAPI: min_period_frames = 480
+WASAPI: max_period_frames = 480
+WASAPI: selected a period frame size of 480
+WASAPI: detected 2 channels
+WASAPI: audio buffer frames: 480 calculated latency: 10ms
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+CORE API HASH: 75400357
+EDITOR API HASH: 3012763406
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: C:/Users/cloud/AppData/Roaming/Godot/editor_settings-4.6.tres
+EditorSettings: Load OK!
+EditorTheme: Generating new theme for the config '3810048042'.
+EditorTheme: Generating new icons.
+EditorTheme: Generating new fonts.
+EditorTheme: Generating new styles.
+Asset Library not available (due to using Web editor, or SSL support disabled).
+Loading resource: C:/Users/cloud/AppData/Local/Godot/editor_doc_cache-4.6.res
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+Loaded builtin CA certificates
+ERROR: Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.
+   at: _close (drivers/windows/file_access_windows.cpp:276)
+Script documentation cache not found. Regenerating it may take a while for projects with many scripts.
+ERROR: Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.
+   at: _close (drivers/windows/file_access_windows.cpp:276)
+ERROR: Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.
+   at: _close (drivers/windows/file_access_windows.cpp:276)
+ERROR: Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.
+   at: _close (drivers/windows/file_access_windows.cpp:276)
+Failed to bind socket. Error: 3.
+Loading resource: res://scripts/GameMaster.gd
+Loading resource: res://scripts/LogicManager.gd
+ERROR: Attempting to parent and popup a dialog that already has a parent.
+   at: _try_parent_dialog (scene/main/window.cpp:2138)
+Loading resource: res://scripts/AudioManager.gd
+Generated 'res://data/Email-From-Sister.txt' preview in 151 usec
+Generated 'res://data/GameDesign.md' preview in 91 usec
+Generated 'res://data/MailData.json' preview in 93 usec
+Generated 'res://data/Story.json' preview in 80 usec
+Generated 'res://scenes/Main.tscn' preview in 34 usec
+ERROR: Can't save PNG at path: 'C:/Users/cloud/AppData/Local/Godot/resthumb-56788fc1f1b0feefcafcf27b86f88733.png'.
+   at: save_image (drivers/png/resource_saver_png.cpp:56)
+ERROR: Cannot create file 'C:/Users/cloud/AppData/Local/Godot/resthumb-56788fc1f1b0feefcafcf27b86f88733.txt'. Check user write permissions.
+   at: _generate_preview (editor/inspector/editor_resource_preview.cpp:258)
+ERROR: Can't save PNG at path: 'C:/Users/cloud/AppData/Local/Godot/resthumb-776c39912305d1095d478cdbac59b86c.png'.
+   at: save_image (drivers/png/resource_saver_png.cpp:56)
+ERROR: Cannot create file 'C:/Users/cloud/AppData/Local/Godot/resthumb-776c39912305d1095d478cdbac59b86c.txt'. Check user write permissions.
+   at: _generate_preview (editor/inspector/editor_resource_preview.cpp:258)
+Generated 'res://shaders/CRT.gdshader' preview in 10 usec
+Generated 'res://shaders/CRT_Simple.gdshader' preview in 5 usec
+Generated 'res://AGENTS.md' preview in 88 usec
+Generated 'res://export_presets.cfg' preview in 220 usec
+Generated 'res://godot_recovery.log' preview in 76 usec
+Generated 'res://godot_recovery_2.log' preview in 119 usec
+ERROR: Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.
+   at: _close (drivers/windows/file_access_windows.cpp:276)
+ERROR: Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.
+   at: _close (drivers/windows/file_access_windows.cpp:276)
+ERROR: Cannot save file 'C:/Users/cloud/AppData/Roaming/Godot/editor_settings-4.6.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+ERROR: Error saving editor settings to C:/Users/cloud/AppData/Roaming/Godot/editor_settings-4.6.tres
+   at: save (editor/settings/editor_settings.cpp:1404)
+
+================================================================
+CrashHandlerException: Program crashed with signal 11
+Engine version: Godot Engine v4.6.1.stable.official (14d19694e0c88a3f9e82d899a0400f27a24c176e)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+[1] error(-1): no debug info in PE/COFF executable
+[2] error(-1): no debug info in PE/COFF executable
+[3] error(-1): no debug info in PE/COFF executable
+[4] error(-1): no debug info in PE/COFF executable
+[5] error(-1): no debug info in PE/COFF executable
+[6] error(-1): no debug info in PE/COFF executable
+[7] error(-1): no debug info in PE/COFF executable
+[8] error(-1): no debug info in PE/COFF executable
+[9] error(-1): no debug info in PE/COFF executable
+[10] error(-1): no debug info in PE/COFF executable
+[11] error(-1): no debug info in PE/COFF executable
+[12] error(-1): no debug info in PE/COFF executable
+[13] error(-1): no debug info in PE/COFF executable
+[14] error(-1): no debug info in PE/COFF executable
+[15] error(-1): no debug info in PE/COFF executable
+[16] error(-1): no debug info in PE/COFF executable
+[17] error(-1): no debug info in PE/COFF executable
+[18] error(-1): no debug info in PE/COFF executable
+-- END OF C++ BACKTRACE --
+================================================================

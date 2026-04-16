@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://bmx5frihuh16p"]
+
+[ext_resource type="Script" uid="uid://bawq5kxw0oton" path="res://scripts/GameMaster.gd" id="1_gamemaster"]
+[ext_resource type="Script" uid="uid://kwphv6kh21dm" path="res://scripts/LogicManager.gd" id="2_logicmanager"]
+[ext_resource type="Script" uid="uid://qwc63xftuaci" path="res://scripts/AudioManager.gd" id="3_audiomanager"]
+[ext_resource type="Shader" uid="uid://d04q8cfa21j1p" path="res://shaders/CRT.gdshader" id="4_crtshader"]
+
+[sub_resource type="ShaderMaterial" id="1_crt_material"]
+shader = ExtResource("4_crtshader")
+shader_parameter/scanline_intensity = 0.3
+shader_parameter/scanline_count = 720.0
+shader_parameter/curvature = 0.01
+shader_parameter/vignette_intensity = 0.18
+shader_parameter/chromatic_aberration = 0.8
+shader_parameter/noise_intensity = 0.05
+shader_parameter/shake_intensity = 0.0
+shader_parameter/flicker_intensity = 0.02
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_gamemaster")
+
+[node name="LogicManager" type="Node" parent="."]
+script = ExtResource("2_logicmanager")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("3_audiomanager")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Background" type="ColorRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="MainLayout" type="VBoxContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = 25.0
+offset_right = -30.0
+offset_bottom = -25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Header" type="HBoxContainer" parent="CanvasLayer/MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="DayLabel" type="Label" parent="CanvasLayer/MainLayout/Header"]
+layout_mode = 2
+text = "[ 第 4 天 ]"
+
+[node name="Spacer" type="Control" parent="CanvasLayer/MainLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WeatherLabel" type="Label" parent="CanvasLayer/MainLayout/Header"]
+layout_mode = 2
+text = "[ 天气：晴朗 ]"
+
+[node name="DividerTop" type="HSeparator" parent="CanvasLayer/MainLayout"]
+layout_mode = 2
+
+[node name="ContentText" type="RichTextLabel" parent="CanvasLayer/MainLayout"]
+custom_minimum_size = Vector2(0, 420)
+layout_mode = 2
+size_flags_vertical = 3
+scroll_following = false
+
+[node name="DividerMiddle" type="HSeparator" parent="CanvasLayer/MainLayout"]
+layout_mode = 2
+
+[node name="OptionsText" type="RichTextLabel" parent="CanvasLayer/MainLayout"]
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="InputArea" type="HBoxContainer" parent="CanvasLayer/MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Prefix" type="Label" parent="CanvasLayer/MainLayout/InputArea"]
+layout_mode = 2
+text = "[ 指令输入 ] >"
+
+[node name="CommandInput" type="LineEdit" parent="CanvasLayer/MainLayout/InputArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+flat = true
+caret_blink = true
+
+[node name="CRT_Overlay" type="ColorRect" parent="CanvasLayer"]
+material = SubResource("1_crt_material")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+
+[connection signal="text_submitted" from="CanvasLayer/MainLayout/InputArea/CommandInput" to="." method="_on_command_input_text_submitted"]
