@@ -7,6 +7,9 @@ const PAGE_MAIL_READ_DAY_LIST := "MAIL_READ_DAY_LIST"
 const PAGE_MAIL_DAY_MESSAGE_LIST := "MAIL_DAY_MESSAGE_LIST"
 
 const MAIL_HOME_TARGET := "__MAIL_HOME__"
+const READ_ALL_EMAILS_GLOBAL_NAME := "ReadAllEmails"
+const DAY_TAG_PREFIX := "第"
+const DAY_TAG_SUFFIX := "天"
 
 @export_file("*.json") var story_file_path: String = "res://data/Story.json"
 @export_file("*.json") var mail_file_path: String = "res://data/MailData.json"
@@ -16,13 +19,19 @@ var initialized: bool = false
 var story_title: String = "Email From Sister"
 var start_node_id: String = ""
 var story_nodes: Dictionary = {}
+var story_global_definitions: Array[Dictionary] = []
+var story_globals: Dictionary = {}
+var global_values: Dictionary = {}
+var read_all_emails_global_id: String = ""
 var current_scene_id: String = ""
 var current_scene_data: Dictionary = {}
 
 var ui_page: String = PAGE_MAIN
-var day_label: String = "第 4 天"
+var default_day_label: String = "第 4 天"
+var day_label: String = default_day_label
 var weather_label: String = "晴朗"
 var transient_hint: String = ""
+var warning_messages: Array[String] = []
 
 var mail_entries: Array[Dictionary] = []
 var read_mail_ids: Dictionary = {}
@@ -31,6 +40,7 @@ var selected_day_index: int = 0
 var selected_day_value: int = -1
 var selected_message_index: int = 0
 var show_selected_mail_body: bool = false
+var mail_day_origin_page: String = PAGE_MAIL_READ_DAY_LIST
 
 
 func _ready() -> void:
@@ -43,12 +53,14 @@ func initialize_game() -> void:
 
 	_load_story_data()
 	_load_mail_data()
+	_initialize_story_globals()
 	_open_start_scene()
 	initialized = true
 
 
 func _load_story_data() -> void:
 	story_nodes.clear()
+	story_global_definitions.clear()
 
 	if story_file_path == "":
 		_create_default_story()
@@ -62,7 +74,13 @@ func _load_story_data() -> void:
 	var metadata = story_data.get("metadata", {})
 	if metadata is Dictionary:
 		story_title = str(metadata.get("title", story_title)).strip_edges()
-		start_node_id = str(metadata.get("startNodeId", start_node_id)).strip_edges()
+		start_node_id = str(metadata.get("startNodeId", "")).strip_edges()
+
+	var raw_globals = story_data.get("globals", [])
+	if raw_globals is Array:
+		for global_value in raw_globals:
+			if global_value is Dictionary:
+				story_global_definitions.append(global_value)
 
 	var raw_nodes = story_data.get("nodes", [])
 	if raw_nodes is Array:
@@ -92,6 +110,7 @@ func _load_story_data() -> void:
 func _create_default_story() -> void:
 	start_node_id = "fallback_intro"
 	story_title = "Email From Sister"
+	story_global_definitions.clear()
 	story_nodes = {
 		"fallback_intro": {
 			"id": "fallback_intro",
@@ -105,6 +124,9 @@ func _create_default_story() -> void:
 func _load_mail_data() -> void:
 	mail_entries.clear()
 	read_mail_ids.clear()
+	default_day_label = "第 4 天"
+	day_label = default_day_label
+	weather_label = "晴朗"
 
 	if mail_file_path == "":
 		return
@@ -113,7 +135,8 @@ func _load_mail_data() -> void:
 	if mailbox_data.is_empty():
 		return
 
-	day_label = str(mailbox_data.get("defaultDayLabel", day_label)).strip_edges()
+	default_day_label = str(mailbox_data.get("defaultDayLabel", default_day_label)).strip_edges()
+	day_label = default_day_label
 	weather_label = str(mailbox_data.get("defaultWeatherLabel", weather_label)).strip_edges()
 
 	var raw_messages = mailbox_data.get("messages", [])
@@ -144,6 +167,32 @@ func _load_mail_data() -> void:
 			read_mail_ids[normalized_message["id"]] = true
 
 
+func _initialize_story_globals() -> void:
+	story_globals.clear()
+	global_values.clear()
+	read_all_emails_global_id = ""
+
+	for global_definition in story_global_definitions:
+		var global_id = str(global_definition.get("id", "")).strip_edges()
+		if global_id == "":
+			continue
+
+		var value_type = str(global_definition.get("valueType", "")).strip_edges().to_lower()
+		var default_value = _coerce_global_value_by_type(value_type, global_definition.get("defaultValue"))
+		var global_meta := {
+			"id": global_id,
+			"name": str(global_definition.get("name", "")).strip_edges(),
+			"value_type": value_type,
+			"default_value": default_value
+		}
+
+		story_globals[global_id] = global_meta
+		global_values[global_id] = default_value
+
+		if str(global_meta.get("name", "")) == READ_ALL_EMAILS_GLOBAL_NAME:
+			read_all_emails_global_id = global_id
+
+
 func _open_start_scene() -> void:
 	if start_node_id == "" or not story_nodes.has(start_node_id):
 		_create_default_story()
@@ -151,16 +200,49 @@ func _open_start_scene() -> void:
 	_set_main_scene(start_node_id)
 
 
-func _set_main_scene(scene_id: String) -> void:
+func _set_main_scene(scene_id: String) -> bool:
 	if not story_nodes.has(scene_id):
-		transient_hint = "目标场景不存在。"
-		return
+		transient_hint = "目标场景不存在：%s" % scene_id
+		return false
 
 	current_scene_id = scene_id
 	current_scene_data = story_nodes[scene_id]
 	ui_page = PAGE_MAIN
-	transient_hint = ""
 	show_selected_mail_body = false
+	warning_messages.clear()
+	transient_hint = ""
+	_update_day_label_from_scene(current_scene_data)
+	return true
+
+
+func _update_day_label_from_scene(scene_data: Dictionary) -> void:
+	var tags_value = scene_data.get("tags", [])
+	if not (tags_value is Array):
+		return
+
+	for tag_value in tags_value:
+		var tag_text = str(tag_value).strip_edges()
+		var parsed_day = _parse_day_tag(tag_text)
+		if parsed_day >= 0:
+			day_label = "第 %d 天" % parsed_day
+			return
+
+
+func _parse_day_tag(tag_text: String) -> int:
+	if not tag_text.begins_with(DAY_TAG_PREFIX) or not tag_text.ends_with(DAY_TAG_SUFFIX):
+		return -1
+
+	if tag_text.length() < DAY_TAG_PREFIX.length() + DAY_TAG_SUFFIX.length() + 1:
+		return -1
+
+	var middle = tag_text.substr(
+		DAY_TAG_PREFIX.length(),
+		tag_text.length() - DAY_TAG_PREFIX.length() - DAY_TAG_SUFFIX.length()
+	).strip_edges()
+	if not middle.is_valid_int():
+		return -1
+
+	return int(middle)
 
 
 func get_current_ui_page() -> String:
@@ -201,71 +283,96 @@ func get_page_option_lines() -> Array[String]:
 			return _build_main_option_lines()
 		PAGE_MAIL_HOME:
 			return [
-				"> 1. 查看未读邮件",
-				"> 2. 查看已读邮件",
-				"> 3. 退出邮件"
+				"1. 查看未读邮件",
+				"2. 查看已读邮件",
+				"3. 返回主界面"
 			]
 		PAGE_MAIL_UNREAD_LIST:
+			if _get_unread_mails().is_empty():
+				return ["1. 返回邮件首页"]
 			return [
-				"> 1. 查看已读邮件",
-				"> 2. 退出邮件"
+				"1. 查看当前邮件",
+				"2. 返回邮件首页"
 			]
-		PAGE_MAIL_READ_DAY_LIST, PAGE_MAIL_DAY_MESSAGE_LIST:
+		PAGE_MAIL_READ_DAY_LIST:
+			if _get_read_days().is_empty():
+				return ["1. 返回邮件首页"]
 			return [
-				"> 1. 查看未读邮件",
-				"> 2. 退出邮件"
+				"1. 查看当前日期邮件",
+				"2. 返回邮件首页"
+			]
+		PAGE_MAIL_DAY_MESSAGE_LIST:
+			if _get_day_messages(selected_day_value).is_empty():
+				return ["1. 返回上一层"]
+			if show_selected_mail_body:
+				return [
+					"1. 收起当前正文",
+					"2. 返回上一层"
+				]
+			return [
+				"1. 查看当前邮件",
+				"2. 返回上一层"
 			]
 		_:
 			return []
 
 
 func supports_cursor_navigation() -> bool:
-	return ui_page in [
-		PAGE_MAIL_UNREAD_LIST,
-		PAGE_MAIL_READ_DAY_LIST,
-		PAGE_MAIL_DAY_MESSAGE_LIST
-	]
+	match ui_page:
+		PAGE_MAIL_UNREAD_LIST:
+			return not _get_unread_mails().is_empty()
+		PAGE_MAIL_READ_DAY_LIST:
+			return not _get_read_days().is_empty()
+		PAGE_MAIL_DAY_MESSAGE_LIST:
+			return not _get_day_messages(selected_day_value).is_empty()
+		_:
+			return false
 
 
-func move_cursor(delta: int) -> void:
-	if delta == 0:
+func move_cursor(direction: int) -> void:
+	if direction == 0:
 		return
 
 	match ui_page:
 		PAGE_MAIL_UNREAD_LIST:
-			_move_unread_selection(delta)
+			var unread_mails = _get_unread_mails()
+			selected_unread_index = _wrap_index(selected_unread_index + direction, unread_mails.size())
 		PAGE_MAIL_READ_DAY_LIST:
-			_move_day_selection(delta)
+			var read_days = _get_read_days()
+			selected_day_index = _wrap_index(selected_day_index + direction, read_days.size())
+			if not read_days.is_empty():
+				selected_day_value = read_days[selected_day_index]
 		PAGE_MAIL_DAY_MESSAGE_LIST:
-			_move_day_message_selection(delta)
+			var day_messages = _get_day_messages(selected_day_value)
+			selected_message_index = _wrap_index(selected_message_index + direction, day_messages.size())
+			show_selected_mail_body = false
 
 
-func process_command(command: String) -> void:
-	initialize_game()
-
-	var trimmed = command.strip_edges()
-	if trimmed == "":
+func process_command(raw_command: String) -> void:
+	var command = raw_command.strip_edges()
+	if command == "":
 		return
 
-	if _process_global_command(trimmed):
+	transient_hint = ""
+
+	if _process_global_command(command):
 		return
 
 	match ui_page:
 		PAGE_MAIN:
-			_process_main_command(trimmed)
+			_process_main_command(command)
 		PAGE_MAIL_HOME:
-			_process_mail_home_command(trimmed)
+			_process_mail_home_command(command)
 		PAGE_MAIL_UNREAD_LIST:
-			_process_mail_unread_command(trimmed)
+			_process_mail_unread_command(command)
 		PAGE_MAIL_READ_DAY_LIST:
-			_process_mail_read_day_command(trimmed)
+			_process_mail_read_day_command(command)
 		PAGE_MAIL_DAY_MESSAGE_LIST:
-			_process_mail_day_message_command(trimmed)
+			_process_mail_day_message_command(command)
 
 
 func _process_global_command(command: String) -> bool:
 	var normalized = _normalize_input(command)
-
 	match normalized:
 		"help", "帮助":
 			transient_hint = _build_help_text()
@@ -274,13 +381,9 @@ func _process_global_command(command: String) -> bool:
 			transient_hint = ""
 			return true
 		"stats", "状态":
-			transient_hint = "当前页面：%s｜未读邮件：%d｜已读日期：%d" % [
-				ui_page,
-				_get_unread_mails().size(),
-				_get_read_day_values().size()
-			]
+			transient_hint = _build_stats_text()
 			return true
-		"quit", "exit", "退出游戏":
+		"quit", "退出游戏":
 			get_tree().quit()
 			return true
 		_:
@@ -288,571 +391,751 @@ func _process_global_command(command: String) -> bool:
 
 
 func _build_help_text() -> String:
+	var lines: Array[String] = [
+		"全局指令：help/帮助、clear/清屏、stats/状态、quit/退出游戏"
+	]
+
 	match ui_page:
 		PAGE_MAIN:
-			return "输入数字选择当前剧情选项，也可以直接输入选项文字。"
+			lines.append("主界面：输入数字或选项文本推进剧情。")
 		PAGE_MAIL_HOME:
-			return "邮件首页支持输入数字，或输入“未读”“已读”“退出”。"
-		PAGE_MAIL_UNREAD_LIST:
-			return "未读页支持方向键上下切换高亮，也支持输入“上一个”“下一个”；输入“查看”打开当前邮件。"
-		PAGE_MAIL_READ_DAY_LIST:
-			return "已读页支持方向键上下切换日期，也支持输入“上一个”“下一个”；输入“查看”进入当天邮件。"
-		PAGE_MAIL_DAY_MESSAGE_LIST:
-			return "当天邮件页支持方向键上下切换高亮，也支持输入“上一个”“下一个”；输入“查看”展开或收起正文，输入“返回”回到已读列表。"
-		_:
-			return "可输入数字或关键字操作当前页面。"
+			lines.append("邮件首页：输入 1 查看未读，输入 2 查看已读，输入 3 返回主界面。")
+		PAGE_MAIL_UNREAD_LIST, PAGE_MAIL_READ_DAY_LIST, PAGE_MAIL_DAY_MESSAGE_LIST:
+			lines.append("邮件列表：使用方向键或“上一个 / 下一个”切换高亮，输入“查看”打开当前项，输入“返回”回到上一层。")
+
+	return "\n".join(lines)
+
+
+func _build_stats_text() -> String:
+	var lines: Array[String] = [
+		"当前页面：%s" % ui_page,
+		"当前天数：%s" % day_label,
+		"天气：%s" % weather_label,
+		"未读邮件：%d" % _get_unread_mails().size()
+	]
+
+	if not global_values.is_empty():
+		var global_lines: Array[String] = []
+		for global_id in global_values.keys():
+			var meta: Dictionary = story_globals.get(global_id, {})
+			var display_name = str(meta.get("name", global_id)).strip_edges()
+			global_lines.append("%s = %s" % [display_name, str(global_values[global_id])])
+		global_lines.sort()
+		lines.append("全局变量：\n%s" % "\n".join(global_lines))
+
+	return "\n".join(lines)
 
 
 func _process_main_command(command: String) -> void:
 	var choices = _get_main_choices()
-	var normalized_command = _normalize_input(command)
-
-	for choice in choices:
-		if bool(choice.get("synthetic", false)) and normalized_command == _normalize_input(str(choice.get("text", ""))):
-			_execute_main_choice(choice)
-			return
+	if choices.is_empty():
+		transient_hint = "当前节点没有可用选项。"
+		return
 
 	if command.is_valid_int():
-		var option_index = command.to_int() - 1
-		if option_index >= 0 and option_index < choices.size():
-			_execute_main_choice(choices[option_index])
+		var selected_index = int(command) - 1
+		if selected_index >= 0 and selected_index < choices.size():
+			_execute_main_choice(choices[selected_index])
 			return
 
 	for choice in choices:
-		if _command_matches_choice(command, str(choice.get("text", ""))):
+		if _command_matches_choice(command, choice):
 			_execute_main_choice(choice)
 			return
 
-	transient_hint = "没有匹配到当前场景的操作。输入“帮助”可查看提示。"
+	transient_hint = "未识别的指令：%s" % command
 
 
 func _process_mail_home_command(command: String) -> void:
 	var normalized = _normalize_input(command)
-
-	if command.is_valid_int():
-		match command.to_int():
-			1:
-				_open_mail_unread_list()
-				return
-			2:
-				_open_mail_read_day_list()
-				return
-			3:
-				_close_mail()
-				return
-
-	if normalized.contains("未读"):
-		_open_mail_unread_list()
-		return
-	if normalized.contains("已读"):
-		_open_mail_read_day_list()
-		return
-	if normalized.contains("退出") or normalized.contains("返回"):
-		_close_mail()
-		return
-
-	transient_hint = "邮件首页只支持“未读 / 已读 / 退出”三类操作。"
+	match normalized:
+		"1", "未读", "查看未读", "查看未读邮件":
+			_open_unread_mail_list()
+		"2", "已读", "查看已读", "查看已读邮件":
+			_open_read_day_list()
+		"3", "返回", "退出", "回去", "主界面":
+			ui_page = PAGE_MAIN
+			show_selected_mail_body = false
+		_:
+			transient_hint = "邮件首页可用指令：1 / 2 / 3。"
 
 
 func _process_mail_unread_command(command: String) -> void:
-	var normalized = _normalize_input(command)
-
-	if command.is_valid_int():
-		match command.to_int():
-			1:
-				_open_mail_read_day_list()
-				return
-			2:
-				_close_mail()
-				return
-
-	if normalized.contains("已读"):
-		_open_mail_read_day_list()
-		return
-	if normalized.contains("退出") or normalized.contains("返回首页"):
-		_close_mail()
-		return
-	if _is_previous_command(normalized):
-		_move_unread_selection(-1)
-		return
-	if _is_next_command(normalized):
-		_move_unread_selection(1)
-		return
-	if _is_confirm_command(normalized):
-		_open_selected_unread_mail()
+	var unread_mails = _get_unread_mails()
+	if unread_mails.is_empty():
+		if _normalize_input(command) == "1" or _is_previous_command(command):
+			_open_mail_home()
+		else:
+			transient_hint = "当前没有未读邮件。输入 1 返回邮件首页。"
 		return
 
-	transient_hint = "可输入“上一个 / 下一个 / 查看”，或使用底部数字操作。"
+	if _normalize_input(command) == "上一个":
+		move_cursor(-1)
+		return
+
+	if _is_next_command(command):
+		move_cursor(1)
+		return
+
+	if _is_previous_command(command) or _normalize_input(command) == "2":
+		_open_mail_home()
+		return
+
+	if _normalize_input(command) == "1" or _is_confirm_command(command):
+		_open_unread_mail(selected_unread_index)
+		return
+
+	transient_hint = "未读邮件页可用指令：1 查看、2 返回、上一个、下一个。"
 
 
 func _process_mail_read_day_command(command: String) -> void:
-	var normalized = _normalize_input(command)
-
-	if command.is_valid_int():
-		match command.to_int():
-			1:
-				_open_mail_unread_list()
-				return
-			2:
-				_close_mail()
-				return
-
-	if normalized.contains("未读"):
-		_open_mail_unread_list()
-		return
-	if normalized.contains("退出"):
-		_close_mail()
-		return
-	if _is_previous_command(normalized):
-		_move_day_selection(-1)
-		return
-	if _is_next_command(normalized):
-		_move_day_selection(1)
-		return
-	if _is_confirm_command(normalized):
-		_open_selected_read_day()
+	var read_days = _get_read_days()
+	if read_days.is_empty():
+		if _normalize_input(command) == "1" or _is_previous_command(command):
+			_open_mail_home()
+		else:
+			transient_hint = "当前没有已读邮件。输入 1 返回邮件首页。"
 		return
 
-	transient_hint = "可输入“上一个 / 下一个 / 查看”，或使用底部数字操作。"
+	if _normalize_input(command) == "上一个":
+		move_cursor(-1)
+		return
+
+	if _is_next_command(command):
+		move_cursor(1)
+		return
+
+	if _is_previous_command(command) or _normalize_input(command) == "2":
+		_open_mail_home()
+		return
+
+	if _normalize_input(command) == "1" or _is_confirm_command(command):
+		_open_selected_day_messages(PAGE_MAIL_READ_DAY_LIST)
+		return
+
+	transient_hint = "已读归档页可用指令：1 查看、2 返回、上一个、下一个。"
 
 
 func _process_mail_day_message_command(command: String) -> void:
-	var normalized = _normalize_input(command)
+	var day_messages = _get_day_messages(selected_day_value)
+	if day_messages.is_empty():
+		if _normalize_input(command) == "1" or _is_previous_command(command):
+			_return_to_day_origin()
+		else:
+			transient_hint = "当前日期没有已读邮件。输入 1 返回上一层。"
+		return
 
-	if command.is_valid_int():
-		match command.to_int():
-			1:
-				_open_mail_unread_list()
-				return
-			2:
-				_close_mail()
-				return
+	if _normalize_input(command) == "上一个":
+		move_cursor(-1)
+		return
 
-	if normalized.contains("未读"):
-		_open_mail_unread_list()
+	if _is_next_command(command):
+		move_cursor(1)
 		return
-	if normalized.contains("退出"):
-		_close_mail()
+
+	if _is_previous_command(command) or _normalize_input(command) == "2":
+		if show_selected_mail_body:
+			show_selected_mail_body = false
+			return
+		_return_to_day_origin()
 		return
-	if normalized.contains("返回"):
-		_open_mail_read_day_list()
-		return
-	if _is_previous_command(normalized):
-		_move_day_message_selection(-1)
-		return
-	if _is_next_command(normalized):
-		_move_day_message_selection(1)
-		return
-	if _is_confirm_command(normalized):
+
+	if _normalize_input(command) == "1" or _is_confirm_command(command):
 		show_selected_mail_body = not show_selected_mail_body
-		transient_hint = ""
 		return
 
-	transient_hint = "可输入“上一个 / 下一个 / 查看 / 返回”，或使用底部数字操作。"
+	transient_hint = "邮件列表页可用指令：1 查看、2 返回、上一个、下一个。"
 
 
 func _build_main_page_body() -> String:
-	var parts: Array[String] = []
-	var body = str(current_scene_data.get("body", current_scene_data.get("description", ""))).strip_edges()
+	var sections: Array[String] = []
+	var scene_body = str(current_scene_data.get("body", "")).strip_edges()
 
-	if body == "":
-		var title = str(current_scene_data.get("title", "")).strip_edges()
-		if title != "":
-			body = "【%s】" % title
+	if scene_body != "":
+		sections.append(scene_body)
 
-	if body != "":
-		parts.append(body)
-
-	if transient_hint != "":
-		parts.append(transient_hint)
-
-	return "\n\n".join(parts)
+	_append_feedback_sections(sections)
+	return "\n\n".join(sections)
 
 
 func _build_mail_home_body() -> String:
-	var parts: Array[String] = [
-		"[邮件]",
-		"收件箱已同步。",
-		"当前共有 %d 封未读邮件。" % _get_unread_mails().size(),
-		"已归档 %d 天的邮件记录。" % _get_read_day_values().size()
+	var sections: Array[String] = [
+		"【邮件】",
+		"收件箱中仍有一些你没有读完的内容。",
+		"未读邮件：%d 封\n已读日期归档：%d 天" % [_get_unread_mails().size(), _get_read_days().size()]
 	]
-
-	if transient_hint != "":
-		parts.append(transient_hint)
-
-	return "\n\n".join(parts)
+	_append_feedback_sections(sections)
+	return "\n\n".join(sections)
 
 
 func _build_unread_mail_body() -> String:
-	var lines: Array[String] = ["【未读邮件】", ""]
+	var sections: Array[String] = ["【未读邮件】"]
 	var unread_mails = _get_unread_mails()
-
 	if unread_mails.is_empty():
-		lines.append("（当前没有未读邮件）")
+		sections.append("当前没有未读邮件。")
 	else:
-		var clamped_index = clamp(selected_unread_index, 0, unread_mails.size() - 1)
-		for i in range(unread_mails.size()):
-			lines.append(_format_mail_overview_line(unread_mails[i], i == clamped_index, true))
-
-	if transient_hint != "":
-		lines.append("")
-		lines.append(transient_hint)
-
-	return "\n".join(lines)
+		var lines: Array[String] = []
+		for index in unread_mails.size():
+			var entry = unread_mails[index]
+			lines.append(_format_mail_entry_line(entry, index == selected_unread_index))
+		sections.append("\n".join(lines))
+	_append_feedback_sections(sections)
+	return "\n\n".join(sections)
 
 
 func _build_read_day_body() -> String:
-	var lines: Array[String] = ["【已读邮件】", ""]
-	var read_days = _get_read_day_values()
-
+	var sections: Array[String] = ["【已读邮件】"]
+	var read_days = _get_read_days()
 	if read_days.is_empty():
-		lines.append("（当前还没有已读邮件）")
+		sections.append("当前没有已读邮件归档。")
 	else:
-		var clamped_index = clamp(selected_day_index, 0, read_days.size() - 1)
-		for i in range(read_days.size()):
-			var current_day = read_days[i]
-			var suffix = " <--" if i == clamped_index else ""
-			lines.append("[第 %d 天的邮件]%s" % [current_day, suffix])
-
-	if transient_hint != "":
-		lines.append("")
-		lines.append(transient_hint)
-
-	return "\n".join(lines)
+		var lines: Array[String] = []
+		for index in read_days.size():
+			var day_value = read_days[index]
+			var marker = "<--" if index == selected_day_index else ""
+			var count = _get_day_messages(day_value).size()
+			lines.append(("第 %d 天（%d 封） %s" % [day_value, count, marker]).strip_edges())
+		sections.append("\n".join(lines))
+	_append_feedback_sections(sections)
+	return "\n\n".join(sections)
 
 
 func _build_day_message_body() -> String:
-	var lines: Array[String] = ["【第 %d 天的邮件】" % selected_day_value, ""]
-	var day_messages = _get_read_mails_for_day(selected_day_value)
+	var sections: Array[String] = []
+	var day_messages = _get_day_messages(selected_day_value)
+	if selected_day_value > 0:
+		sections.append("【第 %d 天的邮件】" % selected_day_value)
+	else:
+		sections.append("【邮件列表】")
 
 	if day_messages.is_empty():
-		lines.append("（这一天还没有可展示的邮件）")
-	else:
-		var clamped_index = clamp(selected_message_index, 0, day_messages.size() - 1)
-		for i in range(day_messages.size()):
-			lines.append(_format_mail_overview_line(day_messages[i], i == clamped_index, false))
+		sections.append("当前日期没有已读邮件。")
+		_append_feedback_sections(sections)
+		return "\n\n".join(sections)
 
-		if show_selected_mail_body:
-			var current_message: Dictionary = day_messages[clamped_index]
-			lines.append("")
-			lines.append("【邮件正文】")
-			lines.append(str(current_message.get("body", "")).strip_edges())
+	var lines: Array[String] = []
+	for index in day_messages.size():
+		var entry = day_messages[index]
+		lines.append(_format_mail_entry_line(entry, index == selected_message_index))
+	sections.append("\n".join(lines))
+
+	if show_selected_mail_body:
+		var selected_entry = day_messages[selected_message_index]
+		sections.append("【邮件正文】\n%s" % str(selected_entry.get("body", "")).strip_edges())
+	_append_feedback_sections(sections)
+	return "\n\n".join(sections)
+
+
+func _append_feedback_sections(sections: Array[String]) -> void:
+	if not warning_messages.is_empty():
+		sections.append("【系统警告】\n%s" % "\n".join(warning_messages))
 
 	if transient_hint != "":
-		lines.append("")
-		lines.append(transient_hint)
-
-	return "\n".join(lines)
+		sections.append("【提示】\n%s" % transient_hint)
 
 
 func _build_main_option_lines() -> Array[String]:
 	var lines: Array[String] = []
 	var choices = _get_main_choices()
-
-	for i in range(choices.size()):
-		lines.append("> %d. %s" % [i + 1, str(choices[i].get("text", ""))])
-
+	for index in choices.size():
+		var choice = choices[index]
+		lines.append("%d. %s" % [index + 1, str(choice.get("text", "")).strip_edges()])
 	return lines
 
 
 func _get_main_choices() -> Array[Dictionary]:
-	var choices: Array[Dictionary] = []
+	var visible_story_choices = _get_visible_story_choices()
+	var final_choices: Array[Dictionary] = []
+	for story_choice in visible_story_choices:
+		final_choices.append(story_choice)
+
+	if _should_append_mail_choice(visible_story_choices):
+		final_choices.append(_create_mail_choice())
+
+	return final_choices
+
+
+func _get_visible_story_choices() -> Array[Dictionary]:
+	var visible_choices: Array[Dictionary] = []
 	var raw_choices = current_scene_data.get("choices", [])
+	if not (raw_choices is Array):
+		return visible_choices
 
-	if raw_choices is Array:
-		for choice_value in raw_choices:
-			if not (choice_value is Dictionary):
-				continue
+	for choice_value in raw_choices:
+		if not (choice_value is Dictionary):
+			continue
 
-			var choice_dict: Dictionary = choice_value
-			var choice_text = str(choice_dict.get("text", "")).strip_edges()
-			if choice_text == "":
-				continue
+		var choice_dict: Dictionary = choice_value
+		var visibility_result = _evaluate_visibility_condition(choice_dict.get("visibilityCondition"))
+		if not bool(visibility_result.get("ok", true)):
+			_append_warning(str(visibility_result.get("error", "选项可见性条件无效。")).strip_edges())
+			continue
 
-			choices.append({
-				"text": choice_text,
-				"target": _extract_choice_target(choice_dict),
-				"synthetic": false,
-				"error": _get_choice_route_error(choice_dict)
-			})
-	elif raw_choices is Dictionary:
-		for option_text in raw_choices.keys():
-			choices.append({
-				"text": str(option_text),
-				"target": str(raw_choices[option_text]),
-				"synthetic": false,
-				"error": ""
-			})
-	else:
-		var raw_options = current_scene_data.get("options", {})
-		if raw_options is Dictionary:
-			for option_text in raw_options.keys():
-				choices.append({
-					"text": str(option_text),
-					"target": str(raw_options[option_text]),
-					"synthetic": false,
-					"error": ""
-				})
+		if not bool(visibility_result.get("visible", true)):
+			continue
 
-	choices.append({
+		visible_choices.append(_build_visible_story_choice(choice_dict))
+
+	return visible_choices
+
+
+func _build_visible_story_choice(choice_dict: Dictionary) -> Dictionary:
+	return {
+		"id": str(choice_dict.get("id", "")).strip_edges(),
+		"text": str(choice_dict.get("text", "")).strip_edges(),
+		"synthetic": false,
+		"choice": choice_dict
+	}
+
+
+func _should_append_mail_choice(visible_story_choices: Array[Dictionary]) -> bool:
+	if visible_story_choices.size() == 1:
+		var only_choice_text = _normalize_input(str(visible_story_choices[0].get("text", "")).strip_edges())
+		if only_choice_text == _normalize_input("继续"):
+			return false
+
+	return true
+
+
+func _create_mail_choice() -> Dictionary:
+	return {
+		"id": "synthetic_mail_home",
 		"text": "查看邮件",
-		"target": MAIL_HOME_TARGET,
 		"synthetic": true,
-		"error": ""
-	})
-
-	return choices
+		"target": MAIL_HOME_TARGET
+	}
 
 
-func _execute_main_choice(choice: Dictionary) -> void:
-	var target_id = str(choice.get("target", "")).strip_edges()
-	var route_error = str(choice.get("error", "")).strip_edges()
-
-	if bool(choice.get("synthetic", false)) or target_id == MAIL_HOME_TARGET:
+func _execute_main_choice(main_choice: Dictionary) -> void:
+	if bool(main_choice.get("synthetic", false)) or str(main_choice.get("target", "")) == MAIL_HOME_TARGET:
 		_open_mail_home()
 		return
 
-	if route_error != "":
-		transient_hint = route_error
+	var source_choice: Dictionary = main_choice.get("choice", {})
+	if source_choice.is_empty():
+		transient_hint = "选项数据无效，无法继续。"
 		return
 
-	if target_id == "":
-		transient_hint = "这个选项暂时没有可用的跳转目标。"
+	_apply_choice_effects(source_choice.get("effects"))
+
+	var route_result = _resolve_choice_target(source_choice)
+	if not bool(route_result.get("ok", false)):
+		transient_hint = str(route_result.get("error", "该选项没有可用的目标节点。")).strip_edges()
 		return
 
-	if not story_nodes.has(target_id):
-		transient_hint = "目标场景不存在。"
+	var target_scene_id = str(route_result.get("target", "")).strip_edges()
+	if target_scene_id == "":
+		transient_hint = "该选项没有可用的目标节点。"
 		return
 
-	_set_main_scene(target_id)
+	if target_scene_id == MAIL_HOME_TARGET:
+		_open_mail_home()
+		return
+
+	_set_main_scene(target_scene_id)
 
 
-func _extract_choice_target(choice_dict: Dictionary) -> String:
-	var route_value = choice_dict.get("route", {})
+func _evaluate_visibility_condition(condition_value) -> Dictionary:
+	if condition_value == null:
+		return {"ok": true, "visible": true}
+
+	var condition_result = _evaluate_condition(condition_value)
+	if not bool(condition_result.get("ok", false)):
+		return {
+			"ok": false,
+			"visible": false,
+			"error": str(condition_result.get("error", "选项可见性条件无效。")).strip_edges()
+		}
+
+	return {"ok": true, "visible": bool(condition_result.get("result", false))}
+
+
+func _evaluate_condition(condition_value) -> Dictionary:
+	if condition_value == null:
+		return {"ok": true, "result": true}
+
+	if not (condition_value is Dictionary):
+		return {"ok": false, "result": false, "error": "条件格式无效。"}
+
+	var condition_dict: Dictionary = condition_value
+	var global_id = str(condition_dict.get("globalId", "")).strip_edges()
+	if global_id == "":
+		return {"ok": false, "result": false, "error": "条件缺少 globalId。"}
+
+	if not story_globals.has(global_id):
+		return {"ok": false, "result": false, "error": "条件引用了不存在的全局变量：%s" % global_id}
+
+	var operator_name = str(condition_dict.get("operator", "eq")).strip_edges().to_lower()
+	var expected_value = _coerce_global_value(global_id, condition_dict.get("value"))
+	var current_value = global_values.get(global_id)
+	var value_type = str(story_globals[global_id].get("value_type", "")).strip_edges()
+
+	match operator_name:
+		"eq":
+			if value_type == "number":
+				return {"ok": true, "result": is_equal_approx(_to_number(current_value), _to_number(expected_value))}
+			return {"ok": true, "result": current_value == expected_value}
+		"gt":
+			return {"ok": true, "result": _to_number(current_value) > _to_number(expected_value)}
+		"gte":
+			return {"ok": true, "result": _to_number(current_value) >= _to_number(expected_value)}
+		"lte":
+			return {"ok": true, "result": _to_number(current_value) <= _to_number(expected_value)}
+		_:
+			return {"ok": false, "result": false, "error": "未支持的条件运算符：%s" % operator_name}
+
+
+func _apply_choice_effects(effects_value) -> void:
+	if effects_value == null:
+		return
+
+	if not (effects_value is Array):
+		_push_transient_hint("选项效果格式无效，已跳过。")
+		return
+
+	for effect_value in effects_value:
+		if not (effect_value is Dictionary):
+			_push_transient_hint("发现无效的效果配置，已跳过。")
+			continue
+
+		var effect_dict: Dictionary = effect_value
+		var global_id = str(effect_dict.get("globalId", "")).strip_edges()
+		if global_id == "":
+			_push_transient_hint("发现缺少 globalId 的效果配置，已跳过。")
+			continue
+
+		if not story_globals.has(global_id):
+			_push_transient_hint("效果引用了不存在的全局变量：%s" % global_id)
+			continue
+
+		global_values[global_id] = _coerce_global_value(global_id, effect_dict.get("value"))
+
+
+func _resolve_choice_target(choice_dict: Dictionary) -> Dictionary:
+	var route_value = choice_dict.get("route")
 	if route_value is Dictionary:
 		var route_dict: Dictionary = route_value
 		var route_mode = str(route_dict.get("mode", "direct")).strip_edges().to_lower()
-		if route_mode == "" or route_mode == "direct":
-			var nested_target = str(route_dict.get("targetNodeId", route_dict.get("target", ""))).strip_edges()
-			if nested_target != "":
-				return nested_target
+		match route_mode:
+			"direct":
+				var direct_target = str(route_dict.get("targetNodeId", "")).strip_edges()
+				if direct_target == "":
+					direct_target = str(choice_dict.get("targetNodeId", choice_dict.get("target", ""))).strip_edges()
+				if direct_target == "":
+					return {"ok": false, "error": "direct 路由缺少 targetNodeId。"}
+				if not story_nodes.has(direct_target):
+					return {"ok": false, "error": "目标节点不存在：%s" % direct_target}
+				return {"ok": true, "target": direct_target}
+			"conditional":
+				return _resolve_conditional_route(route_dict)
+			_:
+				return {"ok": false, "error": "未支持的路由模式：%s" % route_mode}
 
-	return str(choice_dict.get("targetNodeId", choice_dict.get("target", ""))).strip_edges()
+	var legacy_target = str(choice_dict.get("targetNodeId", choice_dict.get("target", ""))).strip_edges()
+	if legacy_target == "":
+		return {"ok": false, "error": "该选项没有可用的目标节点。"}
+	if not story_nodes.has(legacy_target):
+		return {"ok": false, "error": "目标节点不存在：%s" % legacy_target}
+	return {"ok": true, "target": legacy_target}
 
 
-func _get_choice_route_error(choice_dict: Dictionary) -> String:
-	var route_value = choice_dict.get("route", {})
-	if not (route_value is Dictionary):
-		return ""
+func _resolve_conditional_route(route_dict: Dictionary) -> Dictionary:
+	var raw_branches = route_dict.get("branches", [])
+	if raw_branches is Array:
+		for branch_value in raw_branches:
+			if not (branch_value is Dictionary):
+				continue
 
-	var route_dict: Dictionary = route_value
-	var route_mode = str(route_dict.get("mode", "direct")).strip_edges().to_lower()
-	if route_mode == "" or route_mode == "direct":
-		return ""
+			var branch_dict: Dictionary = branch_value
+			var condition_result = _evaluate_condition(branch_dict.get("condition"))
+			if not bool(condition_result.get("ok", false)):
+				return {
+					"ok": false,
+					"error": str(condition_result.get("error", "条件分支判断失败。")).strip_edges()
+				}
 
-	return "当前版本暂时不支持这种跳转方式：%s" % route_mode
+			if not bool(condition_result.get("result", false)):
+				continue
+
+			var branch_target = str(branch_dict.get("targetNodeId", "")).strip_edges()
+			if branch_target == "":
+				return {"ok": false, "error": "conditional 路由分支缺少 targetNodeId。"}
+			if not story_nodes.has(branch_target):
+				return {"ok": false, "error": "条件分支目标节点不存在：%s" % branch_target}
+			return {"ok": true, "target": branch_target}
+
+	var fallback_target = str(route_dict.get("fallbackTargetNodeId", "")).strip_edges()
+	if fallback_target == "":
+		return {"ok": false, "error": "conditional 路由没有命中分支且缺少 fallbackTargetNodeId。"}
+	if not story_nodes.has(fallback_target):
+		return {"ok": false, "error": "fallback 目标节点不存在：%s" % fallback_target}
+	return {"ok": true, "target": fallback_target}
+
+
+func _coerce_global_value(global_id: String, raw_value):
+	if not story_globals.has(global_id):
+		return raw_value
+
+	var value_type = str(story_globals[global_id].get("value_type", "")).strip_edges()
+	return _coerce_global_value_by_type(value_type, raw_value)
+
+
+func _coerce_global_value_by_type(value_type: String, raw_value):
+	match value_type:
+		"boolean":
+			return _to_bool(raw_value)
+		"number":
+			if raw_value is int:
+				return raw_value
+			if raw_value is float:
+				return raw_value
+			var raw_text = str(raw_value).strip_edges()
+			if raw_text.is_valid_int():
+				return int(raw_text)
+			if raw_text.is_valid_float():
+				return float(raw_text)
+			return 0
+		_:
+			return raw_value
 
 
 func _open_mail_home() -> void:
 	ui_page = PAGE_MAIL_HOME
-	transient_hint = ""
 	show_selected_mail_body = false
+	transient_hint = ""
 
 
-func _open_mail_unread_list() -> void:
+func _open_unread_mail_list() -> void:
 	ui_page = PAGE_MAIL_UNREAD_LIST
-	var unread_mails = _get_unread_mails()
-	selected_unread_index = max(unread_mails.size() - 1, 0)
-	transient_hint = ""
 	show_selected_mail_body = false
+	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_mails().size())
 
 
-func _open_mail_read_day_list() -> void:
+func _open_read_day_list() -> void:
 	ui_page = PAGE_MAIL_READ_DAY_LIST
-	var read_days = _get_read_day_values()
-	if read_days.is_empty():
-		selected_day_index = 0
-		selected_day_value = -1
-	else:
-		selected_day_index = max(read_days.size() - 1, 0)
+	show_selected_mail_body = false
+	var read_days = _get_read_days()
+	selected_day_index = _wrap_index(selected_day_index, read_days.size())
+	if not read_days.is_empty():
 		selected_day_value = read_days[selected_day_index]
-
-	transient_hint = ""
-	show_selected_mail_body = false
-
-
-func _open_mail_day_messages(day_value: int, preferred_mail_id: String = "", preview_body: bool = false) -> void:
-	ui_page = PAGE_MAIL_DAY_MESSAGE_LIST
-	selected_day_value = day_value
-	selected_day_index = _get_read_day_values().find(day_value)
-	selected_message_index = 0
-
-	var day_messages = _get_read_mails_for_day(day_value)
-	if preferred_mail_id != "":
-		for i in range(day_messages.size()):
-			if str(day_messages[i].get("id", "")) == preferred_mail_id:
-				selected_message_index = i
-				break
-
-	show_selected_mail_body = preview_body and not day_messages.is_empty()
-	transient_hint = ""
+	else:
+		selected_day_value = -1
 
 
-func _close_mail() -> void:
-	ui_page = PAGE_MAIN
-	transient_hint = ""
-	show_selected_mail_body = false
-
-
-func _open_selected_unread_mail() -> void:
-	var unread_mails = _get_unread_mails()
-	if unread_mails.is_empty():
-		transient_hint = "当前没有未读邮件。"
-		return
-
-	var clamped_index = clamp(selected_unread_index, 0, unread_mails.size() - 1)
-	var message: Dictionary = unread_mails[clamped_index]
-	read_mail_ids[message["id"]] = true
-	_open_mail_day_messages(int(message.get("day", 0)), str(message.get("id", "")), true)
-
-
-func _open_selected_read_day() -> void:
-	var read_days = _get_read_day_values()
+func _open_selected_day_messages(origin_page: String) -> void:
+	var read_days = _get_read_days()
 	if read_days.is_empty():
-		transient_hint = "当前还没有已读邮件。"
+		transient_hint = "当前没有已读邮件。"
 		return
 
-	var clamped_index = clamp(selected_day_index, 0, read_days.size() - 1)
-	_open_mail_day_messages(read_days[clamped_index], "", false)
-
-
-func _move_unread_selection(delta: int) -> void:
-	var unread_mails = _get_unread_mails()
-	if unread_mails.is_empty():
-		transient_hint = "当前没有未读邮件。"
-		return
-
-	selected_unread_index = _wrap_index(selected_unread_index + delta, unread_mails.size())
-	transient_hint = ""
-
-
-func _move_day_selection(delta: int) -> void:
-	var read_days = _get_read_day_values()
-	if read_days.is_empty():
-		transient_hint = "当前还没有已读邮件。"
-		return
-
-	selected_day_index = _wrap_index(selected_day_index + delta, read_days.size())
+	selected_day_index = _wrap_index(selected_day_index, read_days.size())
 	selected_day_value = read_days[selected_day_index]
-	transient_hint = ""
+	selected_message_index = _wrap_index(selected_message_index, _get_day_messages(selected_day_value).size())
+	show_selected_mail_body = false
+	ui_page = PAGE_MAIL_DAY_MESSAGE_LIST
+	mail_day_origin_page = origin_page
 
 
-func _move_day_message_selection(delta: int) -> void:
-	var day_messages = _get_read_mails_for_day(selected_day_value)
-	if day_messages.is_empty():
-		transient_hint = "这一天没有可切换的邮件。"
+func _open_unread_mail(index: int) -> void:
+	var unread_mails = _get_unread_mails()
+	if unread_mails.is_empty():
+		transient_hint = "当前没有未读邮件。"
 		return
 
-	selected_message_index = _wrap_index(selected_message_index + delta, day_messages.size())
-	transient_hint = ""
+	selected_unread_index = _wrap_index(index, unread_mails.size())
+	var entry = unread_mails[selected_unread_index]
+	read_mail_ids[str(entry.get("id", ""))] = true
+	_sync_read_all_emails_global_from_mailbox()
+
+	selected_day_value = int(entry.get("day", 0))
+	mail_day_origin_page = PAGE_MAIL_UNREAD_LIST
+	ui_page = PAGE_MAIL_DAY_MESSAGE_LIST
+	show_selected_mail_body = true
+
+	var day_messages = _get_day_messages(selected_day_value)
+	selected_message_index = _find_message_index(day_messages, str(entry.get("id", "")))
+	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_mails().size())
+
+
+func _return_to_day_origin() -> void:
+	show_selected_mail_body = false
+	if mail_day_origin_page == PAGE_MAIL_UNREAD_LIST:
+		_open_unread_mail_list()
+		return
+	_open_read_day_list()
+
+
+func _sync_read_all_emails_global_from_mailbox() -> void:
+	if read_all_emails_global_id == "":
+		return
+
+	global_values[read_all_emails_global_id] = _get_unread_mails().is_empty()
 
 
 func _get_unread_mails() -> Array[Dictionary]:
 	var unread_mails: Array[Dictionary] = []
-	for message in mail_entries:
-		if not read_mail_ids.has(message["id"]):
-			unread_mails.append(message)
+	for entry in mail_entries:
+		var entry_id = str(entry.get("id", "")).strip_edges()
+		if entry_id == "" or read_mail_ids.has(entry_id):
+			continue
+		unread_mails.append(entry)
 	return unread_mails
 
 
-func _get_read_day_values() -> Array[int]:
-	var day_values: Array[int] = []
-	for message in mail_entries:
-		if not read_mail_ids.has(message["id"]):
+func _get_read_days() -> Array[int]:
+	var day_set: Dictionary = {}
+	for entry in mail_entries:
+		var entry_id = str(entry.get("id", "")).strip_edges()
+		if entry_id == "" or not read_mail_ids.has(entry_id):
 			continue
+		day_set[int(entry.get("day", 0))] = true
 
-		var current_day = int(message.get("day", 0))
-		if current_day not in day_values:
-			day_values.append(current_day)
+	var read_days: Array[int] = []
+	for day_value in day_set.keys():
+		read_days.append(int(day_value))
+	read_days.sort()
+	return read_days
 
-	return day_values
 
+func _get_day_messages(day_value: int) -> Array[Dictionary]:
+	var messages: Array[Dictionary] = []
+	if day_value < 0:
+		return messages
 
-func _get_read_mails_for_day(day_value: int) -> Array[Dictionary]:
-	var day_messages: Array[Dictionary] = []
-	for message in mail_entries:
-		if not read_mail_ids.has(message["id"]):
+	for entry in mail_entries:
+		var entry_id = str(entry.get("id", "")).strip_edges()
+		if entry_id == "" or not read_mail_ids.has(entry_id):
 			continue
-		if int(message.get("day", 0)) == day_value:
-			day_messages.append(message)
+		if int(entry.get("day", -1)) != day_value:
+			continue
+		messages.append(entry)
 
-	return day_messages
-
-
-func _format_mail_overview_line(message: Dictionary, selected: bool, include_day: bool) -> String:
-	var line = "[%s] [ %s ]" % [
-		str(message.get("label", "")),
-		str(message.get("sender", "妹妹"))
-	]
-
-	if include_day:
-		line += " [第 %d 天]" % int(message.get("day", 0))
-
-	line += " [ %s ]" % str(message.get("time", "00:00"))
-
-	if selected:
-		line += " <--"
-
-	return line
+	return messages
 
 
-func _is_previous_command(normalized: String) -> bool:
-	return normalized.contains("上一个") or normalized.contains("上一封") or normalized.contains("上一页")
+func _find_message_index(messages: Array[Dictionary], message_id: String) -> int:
+	for index in messages.size():
+		if str(messages[index].get("id", "")).strip_edges() == message_id:
+			return index
+	return 0
 
 
-func _is_next_command(normalized: String) -> bool:
-	return normalized.contains("下一个") or normalized.contains("下一封") or normalized.contains("下一页")
+func _format_mail_entry_line(entry: Dictionary, is_selected: bool) -> String:
+	var marker = "<--" if is_selected else ""
+	var day_value = int(entry.get("day", 0))
+	var time_text = str(entry.get("time", "00:00")).strip_edges()
+	var sender_text = str(entry.get("sender", "妹妹")).strip_edges()
+	var title_text = str(entry.get("title", "未命名邮件")).strip_edges()
+	var label_text = str(entry.get("label", "")).strip_edges()
+
+	var prefix = "第 %d 天 %s" % [day_value, time_text]
+	if label_text != "":
+		prefix += " [%s]" % label_text
+
+	return ("%s %s - %s %s" % [prefix, sender_text, title_text, marker]).strip_edges()
 
 
-func _is_confirm_command(normalized: String) -> bool:
-	return normalized.contains("查看") or normalized.contains("打开") or normalized.contains("确认")
+func _is_previous_command(command: String) -> bool:
+	return _normalize_input(command) in ["返回", "上一级", "后退", "back"]
 
 
-func _command_matches_choice(command: String, choice_text: String) -> bool:
-	var normalized_command = _normalize_input(command)
-	var normalized_choice = _normalize_input(choice_text)
-	return normalized_command == normalized_choice or normalized_command.contains(normalized_choice) or normalized_choice.contains(normalized_command)
+func _is_next_command(command: String) -> bool:
+	return _normalize_input(command) in ["下一个", "下移", "next"]
 
 
-func _normalize_input(text: String) -> String:
-	return text.strip_edges().to_lower()
+func _is_confirm_command(command: String) -> bool:
+	return _normalize_input(command) in ["查看", "打开", "确认", "进入", "open", "enter"]
+
+
+func _command_matches_choice(command: String, choice: Dictionary) -> bool:
+	return _normalize_input(command) == _normalize_input(str(choice.get("text", "")).strip_edges())
+
+
+func _normalize_input(value: String) -> String:
+	return value.strip_edges().to_lower()
 
 
 func _wrap_index(index: int, size: int) -> int:
 	if size <= 0:
 		return 0
 
-	return ((index % size) + size) % size
+	var wrapped = index % size
+	if wrapped < 0:
+		wrapped += size
+	return wrapped
 
 
-func _load_json_file(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path):
+func _append_warning(message: String) -> void:
+	var trimmed = message.strip_edges()
+	if trimmed == "":
+		return
+
+	if warning_messages.has(trimmed):
+		return
+
+	warning_messages.append(trimmed)
+
+
+func _push_transient_hint(message: String) -> void:
+	var trimmed = message.strip_edges()
+	if trimmed == "":
+		return
+
+	if transient_hint == "":
+		transient_hint = trimmed
+		return
+
+	if transient_hint.contains(trimmed):
+		return
+
+	transient_hint += "\n" + trimmed
+
+
+func _to_bool(value) -> bool:
+	if value is bool:
+		return value
+	if value is int:
+		return value != 0
+	if value is float:
+		return not is_zero_approx(value)
+
+	var text = str(value).strip_edges().to_lower()
+	return text in ["true", "1", "yes", "on", "是", "真"]
+
+
+func _to_number(value) -> float:
+	if value is int:
+		return float(value)
+	if value is float:
+		return value
+
+	var text = str(value).strip_edges()
+	if text.is_valid_int():
+		return float(int(text))
+	if text.is_valid_float():
+		return float(text)
+	return 0.0
+
+
+func _load_json_file(file_path: String) -> Dictionary:
+	if file_path == "" or not FileAccess.file_exists(file_path):
 		return {}
 
-	var file = FileAccess.open(path, FileAccess.READ)
+	var file = FileAccess.open(file_path, FileAccess.READ)
 	if file == null:
 		return {}
 
-	var json_text = file.get_as_text()
+	var raw_text = file.get_as_text()
 	file.close()
-
-	var json = JSON.new()
-	if json.parse(json_text) != OK:
-		push_error("JSON parse error: %s (%s)" % [path, json.get_error_message()])
+	if raw_text.strip_edges() == "":
 		return {}
 
-	var data = json.get_data()
-	if data is Dictionary:
-		return data
+	var json = JSON.new()
+	var parse_result = json.parse(raw_text)
+	if parse_result != OK:
+		return {}
+
+	if json.data is Dictionary:
+		return json.data
 
 	return {}

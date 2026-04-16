@@ -60,6 +60,9 @@ func _setup_ui_style() -> void:
 	command_input.add_theme_font_override("font", ui_font)
 	command_input.add_theme_font_size_override("font_size", 18)
 	command_input.flat = true
+	command_input.focus_mode = Control.FOCUS_ALL
+	command_input.keep_editing_on_text_submit = true
+	command_input.caret_force_displayed = true
 	command_input.modulate = Color.WHITE
 	command_input.placeholder_text = "输入数字或关键词"
 
@@ -67,7 +70,7 @@ func _setup_ui_style() -> void:
 func _initialize_ui() -> void:
 	logic_manager.initialize_game()
 	_render_current_page()
-	command_input.grab_focus()
+	_ensure_command_input_focus()
 
 
 func _render_current_page() -> void:
@@ -76,6 +79,7 @@ func _render_current_page() -> void:
 	_render_body_text(logic_manager.get_page_body_text())
 	options_text.text = logic_manager.get_page_options_text()
 	content_text.scroll_to_line(0)
+	_ensure_command_input_focus()
 
 
 func _input(event: InputEvent) -> void:
@@ -86,8 +90,10 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if is_typewriter_playing and event.is_action_pressed("ui_accept"):
+		if command_input.text.strip_edges() != "":
+			return
 		_complete_typewriter_text()
-		command_input.grab_focus()
+		_ensure_command_input_focus()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -97,32 +103,30 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_up"):
 		logic_manager.move_cursor(-1)
 		_render_current_page()
-		command_input.grab_focus()
 		get_viewport().set_input_as_handled()
 		return
 
 	if event.is_action_pressed("ui_down"):
 		logic_manager.move_cursor(1)
 		_render_current_page()
-		command_input.grab_focus()
 		get_viewport().set_input_as_handled()
 		return
 
 
 func _on_command_input_text_submitted(new_text: String) -> void:
+	var trimmed = new_text.strip_edges()
 	if is_typewriter_playing:
 		_complete_typewriter_text()
-		command_input.grab_focus()
+		if trimmed == "":
+			_ensure_command_input_focus()
+			return
+		_submit_command(trimmed)
 		return
 
-	var trimmed = new_text.strip_edges()
 	if trimmed == "":
 		return
 
-	logic_manager.process_command(trimmed)
-	command_input.clear()
-	_render_current_page()
-	command_input.grab_focus()
+	_submit_command(trimmed)
 
 
 func _render_body_text(full_text: String) -> void:
@@ -190,6 +194,27 @@ func _on_typewriter_finished() -> void:
 	typewriter_tween = null
 	content_text.visible_characters = -1
 	is_typewriter_playing = false
+	_ensure_command_input_focus()
+
+
+func _submit_command(command: String) -> void:
+	logic_manager.process_command(command)
+	command_input.clear()
+	_render_current_page()
+	_ensure_command_input_focus()
+
+
+func _ensure_command_input_focus() -> void:
+	call_deferred("_apply_command_input_focus")
+
+
+func _apply_command_input_focus() -> void:
+	if not is_instance_valid(command_input):
+		return
+
+	command_input.grab_focus()
+	command_input.caret_column = command_input.text.length()
+	command_input.deselect()
 
 
 func add_terror(value: int) -> void:
