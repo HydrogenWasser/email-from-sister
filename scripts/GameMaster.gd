@@ -15,6 +15,8 @@ extends Node2D
 
 var terror_value: int = 0
 var current_body_text: String = ""
+var current_static_text: String = ""
+var current_animated_text: String = ""
 var is_typewriter_playing: bool = false
 var typewriter_tween: Tween
 var sanity_state: String = "理智"
@@ -41,7 +43,7 @@ func _setup_ui_style() -> void:
 
 	content_text.bbcode_enabled = false
 	content_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content_text.scroll_active = true
+	content_text.scroll_active = false
 	content_text.scroll_following = false
 	content_text.add_theme_font_override("normal_font", ui_font)
 	content_text.add_theme_font_size_override("normal_font_size", 20)
@@ -78,7 +80,6 @@ func _render_current_page() -> void:
 	weather_label.text = "[ 天气：%s ]" % logic_manager.get_weather_label()
 	_render_body_text(logic_manager.get_page_body_text())
 	options_text.text = logic_manager.get_page_options_text()
-	content_text.scroll_to_line(0)
 	_ensure_command_input_focus()
 
 
@@ -132,27 +133,23 @@ func _on_command_input_text_submitted(new_text: String) -> void:
 func _render_body_text(full_text: String) -> void:
 	_stop_typewriter_animation(false)
 	current_body_text = full_text
-	content_text.text = current_body_text
-	content_text.scroll_to_line(0)
-
-	var total_characters = content_text.get_total_character_count()
-	if total_characters <= 0 or typewriter_characters_per_second <= 0.0:
-		content_text.visible_characters = -1
-		is_typewriter_playing = false
-		return
-
 	var reveal_start = _get_reveal_start_index(current_body_text)
-	if reveal_start >= total_characters:
-		content_text.visible_characters = -1
+	current_static_text = current_body_text.substr(0, reveal_start)
+	current_animated_text = current_body_text.substr(reveal_start)
+
+	if current_animated_text.length() <= 0 or typewriter_characters_per_second <= 0.0:
+		content_text.text = current_body_text
+		_align_content_to_bottom()
 		is_typewriter_playing = false
 		return
 
-	content_text.visible_characters = reveal_start
+	content_text.text = current_static_text
+	_align_content_to_bottom()
 	is_typewriter_playing = true
 
-	var duration = max(float(total_characters - reveal_start) / typewriter_characters_per_second, 0.01)
+	var duration = max(float(current_animated_text.length()) / typewriter_characters_per_second, 0.01)
 	typewriter_tween = create_tween()
-	typewriter_tween.tween_method(_set_visible_characters, float(reveal_start), float(total_characters), duration)
+	typewriter_tween.tween_method(_set_typewriter_progress, 0.0, float(current_animated_text.length()), duration)
 	typewriter_tween.finished.connect(_on_typewriter_finished)
 
 
@@ -165,14 +162,16 @@ func _get_reveal_start_index(full_text: String) -> int:
 			var marker = "【邮件正文】\n"
 			var marker_index = full_text.find(marker)
 			if marker_index == -1:
-				return content_text.get_total_character_count()
+				return full_text.length()
 			return marker_index + marker.length()
 		_:
-			return content_text.get_total_character_count()
+			return full_text.length()
 
 
-func _set_visible_characters(value: float) -> void:
-	content_text.visible_characters = mini(int(round(value)), content_text.get_total_character_count())
+func _set_typewriter_progress(value: float) -> void:
+	var visible_count = clampi(int(round(value)), 0, current_animated_text.length())
+	content_text.text = current_static_text + current_animated_text.substr(0, visible_count)
+	_align_content_to_bottom()
 
 
 func _complete_typewriter_text() -> void:
@@ -185,14 +184,16 @@ func _stop_typewriter_animation(show_full_text: bool) -> void:
 		typewriter_tween = null
 
 	if show_full_text:
-		content_text.visible_characters = -1
+		content_text.text = current_body_text
+		_align_content_to_bottom()
 
 	is_typewriter_playing = false
 
 
 func _on_typewriter_finished() -> void:
 	typewriter_tween = null
-	content_text.visible_characters = -1
+	content_text.text = current_body_text
+	_align_content_to_bottom()
 	is_typewriter_playing = false
 	_ensure_command_input_focus()
 
@@ -215,6 +216,14 @@ func _apply_command_input_focus() -> void:
 	command_input.grab_focus()
 	command_input.caret_column = command_input.text.length()
 	command_input.deselect()
+
+
+func _align_content_to_bottom() -> void:
+	if not is_instance_valid(content_text):
+		return
+
+	var target_line = maxi(content_text.get_line_count() - 1, 0)
+	content_text.scroll_to_line(target_line)
 
 
 func add_terror(value: int) -> void:

@@ -13,6 +13,7 @@ const DAY_TAG_SUFFIX := "天"
 
 @export_file("*.json") var story_file_path: String = "res://data/Story.json"
 @export_file("*.json") var mail_file_path: String = "res://data/MailData.json"
+@export_dir var mail_directory_path: String = "res://data/Emails"
 
 var initialized: bool = false
 
@@ -29,11 +30,13 @@ var current_scene_data: Dictionary = {}
 var ui_page: String = PAGE_MAIN
 var default_day_label: String = "第 4 天"
 var day_label: String = default_day_label
+var current_day_number: int = 4
 var weather_label: String = "晴朗"
 var transient_hint: String = ""
 var warning_messages: Array[String] = []
 
 var mail_entries: Array[Dictionary] = []
+var introduced_mail_ids: Dictionary = {}
 var read_mail_ids: Dictionary = {}
 var selected_unread_index: int = 0
 var selected_day_index: int = 0
@@ -123,48 +126,113 @@ func _create_default_story() -> void:
 
 func _load_mail_data() -> void:
 	mail_entries.clear()
+	introduced_mail_ids.clear()
 	read_mail_ids.clear()
 	default_day_label = "第 4 天"
 	day_label = default_day_label
+	current_day_number = 4
 	weather_label = "晴朗"
 
-	if mail_file_path == "":
-		return
+	if mail_file_path != "":
+		var mailbox_data = _load_json_file(mail_file_path)
+		if not mailbox_data.is_empty():
+			default_day_label = str(mailbox_data.get("defaultDayLabel", default_day_label)).strip_edges()
+			weather_label = str(mailbox_data.get("defaultWeatherLabel", weather_label)).strip_edges()
 
-	var mailbox_data = _load_json_file(mail_file_path)
-	if mailbox_data.is_empty():
-		return
-
-	default_day_label = str(mailbox_data.get("defaultDayLabel", default_day_label)).strip_edges()
 	day_label = default_day_label
-	weather_label = str(mailbox_data.get("defaultWeatherLabel", weather_label)).strip_edges()
+	var parsed_default_day = _parse_day_tag(default_day_label)
+	if parsed_default_day >= 0:
+		current_day_number = parsed_default_day
 
-	var raw_messages = mailbox_data.get("messages", [])
-	if not (raw_messages is Array):
+	_load_mail_entries_from_directory()
+
+
+func _load_mail_entries_from_directory() -> void:
+	if mail_directory_path == "":
 		return
 
-	for message_value in raw_messages:
-		if not (message_value is Dictionary):
+	var directory = DirAccess.open(mail_directory_path)
+	if directory == null:
+		return
+
+	directory.list_dir_begin()
+	while true:
+		var file_name = directory.get_next()
+		if file_name == "":
+			break
+		if directory.current_is_dir() or not file_name.to_lower().ends_with(".txt"):
 			continue
 
-		var message_dict: Dictionary = message_value
-		var normalized_message: Dictionary = {
-			"id": str(message_dict.get("id", "")).strip_edges(),
-			"sender": str(message_dict.get("sender", "妹妹")).strip_edges(),
-			"day": int(message_dict.get("day", 0)),
-			"time": str(message_dict.get("time", "00:00")).strip_edges(),
-			"label": str(message_dict.get("label", "")).strip_edges(),
-			"title": str(message_dict.get("title", "")).strip_edges(),
-			"body": str(message_dict.get("body", "")).strip_edges(),
-			"is_read_default": bool(message_dict.get("is_read_default", false))
-		}
+		var entry = _build_mail_entry_from_file(file_name)
+		if not entry.is_empty():
+			mail_entries.append(entry)
+	directory.list_dir_end()
 
-		if str(normalized_message["id"]) == "":
-			continue
+	mail_entries.sort_custom(_sort_mail_entry_ascending)
 
-		mail_entries.append(normalized_message)
-		if bool(normalized_message["is_read_default"]):
-			read_mail_ids[normalized_message["id"]] = true
+
+func _build_mail_entry_from_file(file_name: String) -> Dictionary:
+	var base_name = file_name.get_basename()
+	var segments = base_name.split("-")
+	if segments.size() != 3:
+		return {}
+
+	var day_segment = _unwrap_bracket_segment(segments[0])
+	var label_segment = _unwrap_bracket_segment(segments[1])
+	var sender_segment = _unwrap_bracket_segment(segments[2])
+	var day_number = _parse_day_tag(day_segment)
+	if day_number < 0:
+		return {}
+
+	var mail_number = _parse_mail_number(label_segment)
+	var file_path = mail_directory_path.path_join(file_name)
+	var body_text = _load_text_file(file_path).strip_edges()
+	if body_text == "":
+		return {}
+
+	return {
+		"id": file_name,
+		"sender": sender_segment if sender_segment != "" else "妹妹",
+		"day": day_number,
+		"time": "",
+		"label": label_segment,
+		"title": "",
+		"body": body_text,
+		"mail_number": mail_number
+	}
+
+
+func _unwrap_bracket_segment(value: String) -> String:
+	var trimmed = value.strip_edges()
+	if trimmed.begins_with("[") and trimmed.ends_with("]") and trimmed.length() >= 2:
+		return trimmed.substr(1, trimmed.length() - 2).strip_edges()
+	return trimmed
+
+
+func _parse_mail_number(label_text: String) -> int:
+	var trimmed = label_text.strip_edges()
+	if not trimmed.begins_with("第") or not trimmed.ends_with("封"):
+		return -1
+
+	var middle = trimmed.substr(1, trimmed.length() - 2).strip_edges()
+	if not middle.is_valid_int():
+		return -1
+
+	return int(middle)
+
+
+func _sort_mail_entry_ascending(a: Dictionary, b: Dictionary) -> bool:
+	var day_a = int(a.get("day", 0))
+	var day_b = int(b.get("day", 0))
+	if day_a != day_b:
+		return day_a < day_b
+
+	var number_a = int(a.get("mail_number", 0))
+	var number_b = int(b.get("mail_number", 0))
+	if number_a != number_b:
+		return number_a < number_b
+
+	return str(a.get("id", "")) < str(b.get("id", ""))
 
 
 func _initialize_story_globals() -> void:
@@ -212,6 +280,7 @@ func _set_main_scene(scene_id: String) -> bool:
 	warning_messages.clear()
 	transient_hint = ""
 	_update_day_label_from_scene(current_scene_data)
+	_trigger_file_triggers_for_scene(current_scene_data)
 	return true
 
 
@@ -225,6 +294,7 @@ func _update_day_label_from_scene(scene_data: Dictionary) -> void:
 		var parsed_day = _parse_day_tag(tag_text)
 		if parsed_day >= 0:
 			day_label = "第 %d 天" % parsed_day
+			current_day_number = parsed_day
 			return
 
 
@@ -306,8 +376,9 @@ func get_page_option_lines() -> Array[String]:
 				return ["1. 返回上一层"]
 			if show_selected_mail_body:
 				return [
-					"1. 收起当前正文",
-					"2. 返回上一层"
+					"1. 查看未读邮件",
+					"2. 查看已读邮件",
+					"3. 退出邮件系统"
 				]
 			return [
 				"1. 查看当前邮件",
@@ -429,7 +500,6 @@ func _build_stats_text() -> String:
 func _process_main_command(command: String) -> void:
 	var choices = _get_main_choices()
 	if choices.is_empty():
-		transient_hint = "当前节点没有可用选项。"
 		return
 
 	if command.is_valid_int():
@@ -443,8 +513,6 @@ func _process_main_command(command: String) -> void:
 			_execute_main_choice(choice)
 			return
 
-	transient_hint = "未识别的指令：%s" % command
-
 
 func _process_mail_home_command(command: String) -> void:
 	var normalized = _normalize_input(command)
@@ -457,7 +525,7 @@ func _process_mail_home_command(command: String) -> void:
 			ui_page = PAGE_MAIN
 			show_selected_mail_body = false
 		_:
-			transient_hint = "邮件首页可用指令：1 / 2 / 3。"
+			return
 
 
 func _process_mail_unread_command(command: String) -> void:
@@ -465,8 +533,6 @@ func _process_mail_unread_command(command: String) -> void:
 	if unread_mails.is_empty():
 		if _normalize_input(command) == "1" or _is_previous_command(command):
 			_open_mail_home()
-		else:
-			transient_hint = "当前没有未读邮件。输入 1 返回邮件首页。"
 		return
 
 	if _normalize_input(command) == "上一个":
@@ -485,16 +551,12 @@ func _process_mail_unread_command(command: String) -> void:
 		_open_unread_mail(selected_unread_index)
 		return
 
-	transient_hint = "未读邮件页可用指令：1 查看、2 返回、上一个、下一个。"
-
 
 func _process_mail_read_day_command(command: String) -> void:
 	var read_days = _get_read_days()
 	if read_days.is_empty():
 		if _normalize_input(command) == "1" or _is_previous_command(command):
 			_open_mail_home()
-		else:
-			transient_hint = "当前没有已读邮件。输入 1 返回邮件首页。"
 		return
 
 	if _normalize_input(command) == "上一个":
@@ -513,20 +575,30 @@ func _process_mail_read_day_command(command: String) -> void:
 		_open_selected_day_messages(PAGE_MAIL_READ_DAY_LIST)
 		return
 
-	transient_hint = "已读归档页可用指令：1 查看、2 返回、上一个、下一个。"
-
 
 func _process_mail_day_message_command(command: String) -> void:
 	var day_messages = _get_day_messages(selected_day_value)
 	if day_messages.is_empty():
 		if _normalize_input(command) == "1" or _is_previous_command(command):
 			_return_to_day_origin()
-		else:
-			transient_hint = "当前日期没有已读邮件。输入 1 返回上一层。"
 		return
 
 	if _normalize_input(command) == "上一个":
 		move_cursor(-1)
+		return
+
+	if show_selected_mail_body:
+		var normalized = _normalize_input(command)
+		match normalized:
+			"1", "未读", "查看未读", "查看未读邮件":
+				_open_unread_mail_list()
+			"2", "已读", "查看已读", "查看已读邮件":
+				_open_read_day_list()
+			"3", "退出", "退出邮件系统", "返回", "主界面":
+				ui_page = PAGE_MAIN
+				show_selected_mail_body = false
+			_:
+				return
 		return
 
 	if _is_next_command(command):
@@ -544,8 +616,6 @@ func _process_mail_day_message_command(command: String) -> void:
 		show_selected_mail_body = not show_selected_mail_body
 		return
 
-	transient_hint = "邮件列表页可用指令：1 查看、2 返回、上一个、下一个。"
-
 
 func _build_main_page_body() -> String:
 	var sections: Array[String] = []
@@ -561,7 +631,6 @@ func _build_main_page_body() -> String:
 func _build_mail_home_body() -> String:
 	var sections: Array[String] = [
 		"【邮件】",
-		"收件箱中仍有一些你没有读完的内容。",
 		"未读邮件：%d 封\n已读日期归档：%d 天" % [_get_unread_mails().size(), _get_read_days().size()]
 	]
 	_append_feedback_sections(sections)
@@ -613,15 +682,15 @@ func _build_day_message_body() -> String:
 		_append_feedback_sections(sections)
 		return "\n\n".join(sections)
 
-	var lines: Array[String] = []
-	for index in day_messages.size():
-		var entry = day_messages[index]
-		lines.append(_format_mail_entry_line(entry, index == selected_message_index))
-	sections.append("\n".join(lines))
-
 	if show_selected_mail_body:
 		var selected_entry = day_messages[selected_message_index]
 		sections.append("【邮件正文】\n%s" % str(selected_entry.get("body", "")).strip_edges())
+	else:
+		var lines: Array[String] = []
+		for index in day_messages.size():
+			var entry = day_messages[index]
+			lines.append(_format_mail_entry_line(entry, index == selected_message_index))
+		sections.append("\n".join(lines))
 	_append_feedback_sections(sections)
 	return "\n\n".join(sections)
 
@@ -689,6 +758,9 @@ func _build_visible_story_choice(choice_dict: Dictionary) -> Dictionary:
 
 
 func _should_append_mail_choice(visible_story_choices: Array[Dictionary]) -> bool:
+	if introduced_mail_ids.is_empty():
+		return false
+
 	if visible_story_choices.size() == 1:
 		var only_choice_text = _normalize_input(str(visible_story_choices[0].get("text", "")).strip_edges())
 		if only_choice_text == _normalize_input("继续"):
@@ -965,6 +1037,45 @@ func _return_to_day_origin() -> void:
 	_open_read_day_list()
 
 
+func _trigger_file_triggers_for_scene(scene_data: Dictionary) -> void:
+	var file_triggers = scene_data.get("fileTriggers", [])
+	if file_triggers == null:
+		_sync_read_all_emails_global_from_mailbox()
+		return
+
+	if not (file_triggers is Array):
+		_append_warning("当前节点的 fileTriggers 格式无效。")
+		_sync_read_all_emails_global_from_mailbox()
+		return
+
+	var seen_ids: Dictionary = {}
+	for trigger_value in file_triggers:
+		var file_id = str(trigger_value).strip_edges()
+		if file_id == "":
+			continue
+		if seen_ids.has(file_id):
+			continue
+		seen_ids[file_id] = true
+
+		if introduced_mail_ids.has(file_id):
+			continue
+
+		if not _has_mail_entry(file_id):
+			_append_warning("fileTriggers 引用了不存在的邮件文件：%s" % file_id)
+			continue
+
+		introduced_mail_ids[file_id] = true
+
+	_sync_read_all_emails_global_from_mailbox()
+
+
+func _has_mail_entry(file_id: String) -> bool:
+	for entry in mail_entries:
+		if str(entry.get("id", "")).strip_edges() == file_id:
+			return true
+	return false
+
+
 func _sync_read_all_emails_global_from_mailbox() -> void:
 	if read_all_emails_global_id == "":
 		return
@@ -976,7 +1087,7 @@ func _get_unread_mails() -> Array[Dictionary]:
 	var unread_mails: Array[Dictionary] = []
 	for entry in mail_entries:
 		var entry_id = str(entry.get("id", "")).strip_edges()
-		if entry_id == "" or read_mail_ids.has(entry_id):
+		if entry_id == "" or not introduced_mail_ids.has(entry_id) or read_mail_ids.has(entry_id):
 			continue
 		unread_mails.append(entry)
 	return unread_mails
@@ -986,7 +1097,7 @@ func _get_read_days() -> Array[int]:
 	var day_set: Dictionary = {}
 	for entry in mail_entries:
 		var entry_id = str(entry.get("id", "")).strip_edges()
-		if entry_id == "" or not read_mail_ids.has(entry_id):
+		if entry_id == "" or not introduced_mail_ids.has(entry_id) or not read_mail_ids.has(entry_id):
 			continue
 		day_set[int(entry.get("day", 0))] = true
 
@@ -1004,7 +1115,7 @@ func _get_day_messages(day_value: int) -> Array[Dictionary]:
 
 	for entry in mail_entries:
 		var entry_id = str(entry.get("id", "")).strip_edges()
-		if entry_id == "" or not read_mail_ids.has(entry_id):
+		if entry_id == "" or not introduced_mail_ids.has(entry_id) or not read_mail_ids.has(entry_id):
 			continue
 		if int(entry.get("day", -1)) != day_value:
 			continue
@@ -1025,14 +1136,28 @@ func _format_mail_entry_line(entry: Dictionary, is_selected: bool) -> String:
 	var day_value = int(entry.get("day", 0))
 	var time_text = str(entry.get("time", "00:00")).strip_edges()
 	var sender_text = str(entry.get("sender", "妹妹")).strip_edges()
-	var title_text = str(entry.get("title", "未命名邮件")).strip_edges()
+	var title_text = str(entry.get("title", "")).strip_edges()
 	var label_text = str(entry.get("label", "")).strip_edges()
 
-	var prefix = "第 %d 天 %s" % [day_value, time_text]
+	var prefix = "第 %d 天" % day_value
+	if time_text != "":
+		prefix += " %s" % time_text
 	if label_text != "":
 		prefix += " [%s]" % label_text
 
-	return ("%s %s - %s %s" % [prefix, sender_text, title_text, marker]).strip_edges()
+	var suffix_parts: Array[String] = []
+	if sender_text != "":
+		suffix_parts.append(sender_text)
+	if title_text != "":
+		suffix_parts.append(title_text)
+
+	var suffix = " - ".join(suffix_parts)
+	var line = prefix
+	if suffix != "":
+		line += " %s" % suffix
+	if marker != "":
+		line += " %s" % marker
+	return line.strip_edges()
 
 
 func _is_previous_command(command: String) -> bool:
@@ -1139,3 +1264,16 @@ func _load_json_file(file_path: String) -> Dictionary:
 		return json.data
 
 	return {}
+
+
+func _load_text_file(file_path: String) -> String:
+	if file_path == "" or not FileAccess.file_exists(file_path):
+		return ""
+
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	if file == null:
+		return ""
+
+	var raw_text = file.get_as_text()
+	file.close()
+	return raw_text
