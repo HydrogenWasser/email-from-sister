@@ -44,6 +44,9 @@ var selected_day_value: int = -1
 var selected_message_index: int = 0
 var show_selected_mail_body: bool = false
 var mail_day_origin_page: String = PAGE_MAIL_READ_DAY_LIST
+var selected_main_choice_index: int = 0
+var selected_mail_home_index: int = 0
+var selected_mail_body_action_index: int = 0
 
 
 func _ready() -> void:
@@ -327,6 +330,76 @@ func get_weather_label() -> String:
 	return weather_label
 
 
+func build_save_snapshot() -> Dictionary:
+	initialize_game()
+
+	return {
+		"save_version": 1,
+		"current_scene_id": current_scene_id,
+		"global_values": global_values.duplicate(true),
+		"introduced_mail_ids": introduced_mail_ids.duplicate(true),
+		"read_mail_ids": read_mail_ids.duplicate(true),
+		"ui_page": ui_page,
+		"selected_unread_index": selected_unread_index,
+		"selected_day_index": selected_day_index,
+		"selected_day_value": selected_day_value,
+		"selected_message_index": selected_message_index,
+		"show_selected_mail_body": show_selected_mail_body,
+		"mail_day_origin_page": mail_day_origin_page,
+		"selected_main_choice_index": selected_main_choice_index,
+		"selected_mail_home_index": selected_mail_home_index,
+		"selected_mail_body_action_index": selected_mail_body_action_index,
+		"day_label": day_label,
+		"current_day_number": current_day_number,
+		"weather_label": weather_label
+	}
+
+
+func apply_save_snapshot(snapshot: Dictionary) -> bool:
+	initialize_game()
+	if snapshot.is_empty():
+		return false
+
+	var scene_id = str(snapshot.get("current_scene_id", "")).strip_edges()
+	if scene_id == "" or not story_nodes.has(scene_id):
+		return false
+
+	_initialize_story_globals()
+	_apply_saved_global_values(snapshot.get("global_values", {}))
+
+	introduced_mail_ids = _restore_saved_mail_flags(snapshot.get("introduced_mail_ids", {}))
+	read_mail_ids = _restore_saved_mail_flags(snapshot.get("read_mail_ids", {}))
+	for read_mail_id in read_mail_ids.keys():
+		introduced_mail_ids[read_mail_id] = true
+
+	current_scene_id = scene_id
+	current_scene_data = story_nodes[scene_id]
+	ui_page = _restore_saved_page(str(snapshot.get("ui_page", PAGE_MAIN)).strip_edges())
+	selected_unread_index = int(snapshot.get("selected_unread_index", 0))
+	selected_day_index = int(snapshot.get("selected_day_index", 0))
+	selected_day_value = int(snapshot.get("selected_day_value", -1))
+	selected_message_index = int(snapshot.get("selected_message_index", 0))
+	show_selected_mail_body = bool(snapshot.get("show_selected_mail_body", false))
+	mail_day_origin_page = _restore_mail_origin_page(str(snapshot.get("mail_day_origin_page", PAGE_MAIL_READ_DAY_LIST)).strip_edges())
+	selected_main_choice_index = int(snapshot.get("selected_main_choice_index", 0))
+	selected_mail_home_index = int(snapshot.get("selected_mail_home_index", 0))
+	selected_mail_body_action_index = int(snapshot.get("selected_mail_body_action_index", 0))
+
+	var restored_day_label = str(snapshot.get("day_label", default_day_label)).strip_edges()
+	day_label = restored_day_label if restored_day_label != "" else default_day_label
+	current_day_number = int(snapshot.get("current_day_number", current_day_number))
+
+	var restored_weather = str(snapshot.get("weather_label", weather_label)).strip_edges()
+	if restored_weather != "":
+		weather_label = restored_weather
+
+	transient_hint = ""
+	warning_messages.clear()
+	_sync_read_all_emails_global_from_mailbox()
+	_clamp_restored_ui_state()
+	return true
+
+
 func get_page_body_text() -> String:
 	match ui_page:
 		PAGE_MAIN:
@@ -347,57 +420,28 @@ func get_page_options_text() -> String:
 	return "\n".join(get_page_option_lines())
 
 
-func get_page_option_lines() -> Array[String]:
+func get_page_option_entries() -> Array[Dictionary]:
 	match ui_page:
 		PAGE_MAIN:
-			return _build_main_option_lines()
+			return _get_main_option_entries()
 		PAGE_MAIL_HOME:
-			return [
-				"1. 查看未读邮件",
-				"2. 查看已读邮件",
-				"3. 返回主界面"
-			]
+			return _get_mail_home_option_entries()
 		PAGE_MAIL_UNREAD_LIST:
-			if _get_unread_mails().is_empty():
-				return ["1. 返回邮件首页"]
-			return [
-				"1. 查看当前邮件",
-				"2. 返回邮件首页"
-			]
+			return _get_unread_option_entries()
 		PAGE_MAIL_READ_DAY_LIST:
-			if _get_read_days().is_empty():
-				return ["1. 返回邮件首页"]
-			return [
-				"1. 查看当前日期邮件",
-				"2. 返回邮件首页"
-			]
+			return _get_read_day_option_entries()
 		PAGE_MAIL_DAY_MESSAGE_LIST:
-			if _get_day_messages(selected_day_value).is_empty():
-				return ["1. 返回上一层"]
-			if show_selected_mail_body:
-				return [
-					"1. 查看未读邮件",
-					"2. 查看已读邮件",
-					"3. 退出邮件系统"
-				]
-			return [
-				"1. 查看当前邮件",
-				"2. 返回上一层"
-			]
+			return _get_day_message_option_entries()
 		_:
 			return []
 
 
+func get_page_option_lines() -> Array[String]:
+	return _build_option_lines_from_entries(get_page_option_entries())
+
+
 func supports_cursor_navigation() -> bool:
-	match ui_page:
-		PAGE_MAIL_UNREAD_LIST:
-			return not _get_unread_mails().is_empty()
-		PAGE_MAIL_READ_DAY_LIST:
-			return not _get_read_days().is_empty()
-		PAGE_MAIL_DAY_MESSAGE_LIST:
-			return not _get_day_messages(selected_day_value).is_empty()
-		_:
-			return false
+	return not get_page_option_lines().is_empty()
 
 
 func move_cursor(direction: int) -> void:
@@ -405,18 +449,85 @@ func move_cursor(direction: int) -> void:
 		return
 
 	match ui_page:
+		PAGE_MAIN:
+			selected_main_choice_index = _wrap_index(selected_main_choice_index + direction, _get_main_choices().size())
+		PAGE_MAIL_HOME:
+			selected_mail_home_index = _wrap_index(selected_mail_home_index + direction, _get_mail_home_options().size())
 		PAGE_MAIL_UNREAD_LIST:
-			var unread_mails = _get_unread_mails()
-			selected_unread_index = _wrap_index(selected_unread_index + direction, unread_mails.size())
+			selected_unread_index = _wrap_index(selected_unread_index + direction, _get_unread_option_count())
 		PAGE_MAIL_READ_DAY_LIST:
 			var read_days = _get_read_days()
-			selected_day_index = _wrap_index(selected_day_index + direction, read_days.size())
-			if not read_days.is_empty():
+			selected_day_index = _wrap_index(selected_day_index + direction, _get_read_day_option_count())
+			if not read_days.is_empty() and selected_day_index < read_days.size():
 				selected_day_value = read_days[selected_day_index]
 		PAGE_MAIL_DAY_MESSAGE_LIST:
+			if show_selected_mail_body:
+				selected_mail_body_action_index = _wrap_index(
+					selected_mail_body_action_index + direction,
+					_get_mail_body_action_options().size()
+				)
+			else:
+				selected_message_index = _wrap_index(selected_message_index + direction, _get_day_message_option_count())
+
+
+func confirm_current_selection() -> void:
+	match ui_page:
+		PAGE_MAIN:
+			var main_choices = _get_main_choices()
+			if main_choices.is_empty():
+				return
+			selected_main_choice_index = _wrap_index(selected_main_choice_index, main_choices.size())
+			_execute_main_choice(main_choices[selected_main_choice_index])
+		PAGE_MAIL_HOME:
+			var mail_home_options = _get_mail_home_options()
+			if mail_home_options.is_empty():
+				return
+			selected_mail_home_index = _wrap_index(selected_mail_home_index, mail_home_options.size())
+			match str(mail_home_options[selected_mail_home_index].get("id", "")):
+				"unread":
+					_open_unread_mail_list()
+				"read":
+					_open_read_day_list()
+				"exit":
+					ui_page = PAGE_MAIN
+					show_selected_mail_body = false
+		PAGE_MAIL_UNREAD_LIST:
+			var unread_mails = _get_unread_mails()
+			selected_unread_index = _wrap_index(selected_unread_index, _get_unread_option_count())
+			if unread_mails.is_empty() or selected_unread_index >= unread_mails.size():
+				_open_mail_home()
+				return
+			_open_unread_mail(selected_unread_index)
+		PAGE_MAIL_READ_DAY_LIST:
+			var read_days = _get_read_days()
+			selected_day_index = _wrap_index(selected_day_index, _get_read_day_option_count())
+			if read_days.is_empty() or selected_day_index >= read_days.size():
+				_open_mail_home()
+				return
+			selected_day_value = read_days[selected_day_index]
+			_open_selected_day_messages(PAGE_MAIL_READ_DAY_LIST)
+		PAGE_MAIL_DAY_MESSAGE_LIST:
+			if show_selected_mail_body:
+				var body_actions = _get_mail_body_action_options()
+				if body_actions.is_empty():
+					return
+				selected_mail_body_action_index = _wrap_index(selected_mail_body_action_index, body_actions.size())
+				match str(body_actions[selected_mail_body_action_index].get("id", "")):
+					"unread":
+						_open_unread_mail_list()
+					"read":
+						_open_read_day_list()
+					"exit":
+						ui_page = PAGE_MAIN
+						show_selected_mail_body = false
+				return
+
 			var day_messages = _get_day_messages(selected_day_value)
-			selected_message_index = _wrap_index(selected_message_index + direction, day_messages.size())
-			show_selected_mail_body = false
+			selected_message_index = _wrap_index(selected_message_index, _get_day_message_option_count())
+			if day_messages.is_empty() or selected_message_index >= day_messages.size():
+				_return_to_day_origin()
+				return
+			show_selected_mail_body = true
 
 
 func process_command(raw_command: String) -> void:
@@ -630,7 +741,7 @@ func _build_main_page_body() -> String:
 
 func _build_mail_home_body() -> String:
 	var sections: Array[String] = [
-		"【邮件】",
+		"[邮件]",
 		"未读邮件：%d 封\n已读日期归档：%d 天" % [_get_unread_mails().size(), _get_read_days().size()]
 	]
 	_append_feedback_sections(sections)
@@ -638,33 +749,17 @@ func _build_mail_home_body() -> String:
 
 
 func _build_unread_mail_body() -> String:
-	var sections: Array[String] = ["【未读邮件】"]
-	var unread_mails = _get_unread_mails()
-	if unread_mails.is_empty():
+	var sections: Array[String] = ["[未读邮件]"]
+	if _get_unread_mails().is_empty():
 		sections.append("当前没有未读邮件。")
-	else:
-		var lines: Array[String] = []
-		for index in unread_mails.size():
-			var entry = unread_mails[index]
-			lines.append(_format_mail_entry_line(entry, index == selected_unread_index))
-		sections.append("\n".join(lines))
 	_append_feedback_sections(sections)
 	return "\n\n".join(sections)
 
 
 func _build_read_day_body() -> String:
-	var sections: Array[String] = ["【已读邮件】"]
-	var read_days = _get_read_days()
-	if read_days.is_empty():
+	var sections: Array[String] = ["[已读邮件]"]
+	if _get_read_days().is_empty():
 		sections.append("当前没有已读邮件归档。")
-	else:
-		var lines: Array[String] = []
-		for index in read_days.size():
-			var day_value = read_days[index]
-			var marker = "<--" if index == selected_day_index else ""
-			var count = _get_day_messages(day_value).size()
-			lines.append(("第 %d 天（%d 封） %s" % [day_value, count, marker]).strip_edges())
-		sections.append("\n".join(lines))
 	_append_feedback_sections(sections)
 	return "\n\n".join(sections)
 
@@ -673,9 +768,9 @@ func _build_day_message_body() -> String:
 	var sections: Array[String] = []
 	var day_messages = _get_day_messages(selected_day_value)
 	if selected_day_value > 0:
-		sections.append("【第 %d 天的邮件】" % selected_day_value)
+		sections.append("[第 %d 天的邮件]" % selected_day_value)
 	else:
-		sections.append("【邮件列表】")
+		sections.append("[邮件列表]")
 
 	if day_messages.is_empty():
 		sections.append("当前日期没有已读邮件。")
@@ -683,33 +778,209 @@ func _build_day_message_body() -> String:
 		return "\n\n".join(sections)
 
 	if show_selected_mail_body:
+		selected_message_index = _wrap_index(selected_message_index, day_messages.size())
 		var selected_entry = day_messages[selected_message_index]
-		sections.append("【邮件正文】\n%s" % str(selected_entry.get("body", "")).strip_edges())
-	else:
-		var lines: Array[String] = []
-		for index in day_messages.size():
-			var entry = day_messages[index]
-			lines.append(_format_mail_entry_line(entry, index == selected_message_index))
-		sections.append("\n".join(lines))
+		sections.append(str(selected_entry.get("body", "")).strip_edges())
 	_append_feedback_sections(sections)
 	return "\n\n".join(sections)
 
 
 func _append_feedback_sections(sections: Array[String]) -> void:
 	if not warning_messages.is_empty():
-		sections.append("【系统警告】\n%s" % "\n".join(warning_messages))
+		sections.append("[系统警告]\n%s" % "\n".join(warning_messages))
 
 	if transient_hint != "":
-		sections.append("【提示】\n%s" % transient_hint)
+		sections.append("[提示]\n%s" % transient_hint)
 
 
 func _build_main_option_lines() -> Array[String]:
+	return _build_option_lines_from_entries(_get_main_option_entries())
+
+
+func _build_mail_home_option_lines() -> Array[String]:
+	return _build_option_lines_from_entries(_get_mail_home_option_entries())
+
+
+func _build_unread_option_lines() -> Array[String]:
+	return _build_option_lines_from_entries(_get_unread_option_entries())
+
+
+func _build_read_day_option_lines() -> Array[String]:
+	return _build_option_lines_from_entries(_get_read_day_option_entries())
+
+
+func _build_day_message_option_lines() -> Array[String]:
+	return _build_option_lines_from_entries(_get_day_message_option_entries())
+
+
+func _build_option_lines_from_entries(entries: Array[Dictionary]) -> Array[String]:
 	var lines: Array[String] = []
+	for entry in entries:
+		lines.append(_format_option_line(
+			str(entry.get("label", "")).strip_edges(),
+			bool(entry.get("selected", false))
+		))
+	return lines
+
+
+func _get_main_option_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
 	var choices = _get_main_choices()
+	selected_main_choice_index = _wrap_index(selected_main_choice_index, choices.size())
+	var has_unread_mail = not _get_unread_mails().is_empty()
 	for index in choices.size():
 		var choice = choices[index]
-		lines.append("%d. %s" % [index + 1, str(choice.get("text", "")).strip_edges()])
-	return lines
+		var is_mail_entry = bool(choice.get("synthetic", false)) or str(choice.get("target", "")) == MAIL_HOME_TARGET
+		entries.append({
+			"label": str(choice.get("text", "")).strip_edges(),
+			"selected": index == selected_main_choice_index,
+			"attention": is_mail_entry and has_unread_mail,
+			"kind": "mail_entry" if is_mail_entry else "story_choice"
+		})
+	return entries
+
+
+func _get_mail_home_option_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var options = _get_mail_home_options()
+	selected_mail_home_index = _wrap_index(selected_mail_home_index, options.size())
+	for index in options.size():
+		entries.append({
+			"label": str(options[index].get("label", "")).strip_edges(),
+			"selected": index == selected_mail_home_index,
+			"attention": false,
+			"kind": "mail_home_option"
+		})
+	return entries
+
+
+func _get_unread_option_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var unread_mails = _get_unread_mails()
+	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_option_count())
+	for index in unread_mails.size():
+		entries.append({
+			"label": _format_mail_entry_text(unread_mails[index]),
+			"selected": index == selected_unread_index,
+			"attention": false,
+			"kind": "mail_message"
+		})
+	entries.append({
+		"label": "返回邮件首页",
+		"selected": selected_unread_index == unread_mails.size(),
+		"attention": false,
+		"kind": "back"
+	})
+	return entries
+
+
+func _get_read_day_option_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var read_days = _get_read_days()
+	selected_day_index = _wrap_index(selected_day_index, _get_read_day_option_count())
+	for index in read_days.size():
+		entries.append({
+			"label": _format_read_day_entry_text(read_days[index]),
+			"selected": index == selected_day_index,
+			"attention": false,
+			"kind": "mail_day"
+		})
+	entries.append({
+		"label": "返回邮件首页",
+		"selected": selected_day_index == read_days.size(),
+		"attention": false,
+		"kind": "back"
+	})
+	return entries
+
+
+func _get_day_message_option_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	if show_selected_mail_body:
+		var actions = _get_mail_body_action_options()
+		selected_mail_body_action_index = _wrap_index(selected_mail_body_action_index, actions.size())
+		for index in actions.size():
+			entries.append({
+				"label": str(actions[index].get("label", "")).strip_edges(),
+				"selected": index == selected_mail_body_action_index,
+				"attention": false,
+				"kind": "mail_body_action"
+			})
+		return entries
+
+	var day_messages = _get_day_messages(selected_day_value)
+	selected_message_index = _wrap_index(selected_message_index, _get_day_message_option_count())
+	for index in day_messages.size():
+		entries.append({
+			"label": _format_mail_entry_text(day_messages[index]),
+			"selected": index == selected_message_index,
+			"attention": false,
+			"kind": "mail_message"
+		})
+	entries.append({
+		"label": "返回上一层",
+		"selected": selected_message_index == day_messages.size(),
+		"attention": false,
+		"kind": "back"
+	})
+	return entries
+
+
+func _format_option_line(label_text: String, is_selected: bool) -> String:
+	var line = "- %s" % label_text.strip_edges()
+	if is_selected:
+		line += " <--"
+	return line
+
+
+func _get_mail_home_options() -> Array[Dictionary]:
+	return [
+		{"id": "unread", "label": "查看未读邮件"},
+		{"id": "read", "label": "查看已读邮件"},
+		{"id": "exit", "label": "退出邮件系统"}
+	]
+
+
+func _get_mail_body_action_options() -> Array[Dictionary]:
+	return [
+		{"id": "unread", "label": "查看未读邮件"},
+		{"id": "read", "label": "查看已读邮件"},
+		{"id": "exit", "label": "退出邮件系统"}
+	]
+
+
+func _get_unread_option_count() -> int:
+	return _get_unread_mails().size() + 1
+
+
+func _get_read_day_option_count() -> int:
+	return _get_read_days().size() + 1
+
+
+func _get_day_message_option_count() -> int:
+	return _get_day_messages(selected_day_value).size() + 1
+
+
+func _format_mail_entry_text(entry: Dictionary) -> String:
+	var day_value = int(entry.get("day", 0))
+	var time_text = str(entry.get("time", "")).strip_edges()
+	var sender_text = str(entry.get("sender", "妹妹")).strip_edges()
+	var title_text = str(entry.get("title", "")).strip_edges()
+	var label_text = str(entry.get("label", "")).strip_edges()
+	var parts: Array[String] = ["第 %d 天" % day_value]
+	if time_text != "":
+		parts.append(time_text)
+	if label_text != "":
+		parts.append("[%s]" % label_text)
+	if sender_text != "":
+		parts.append(sender_text)
+	if title_text != "":
+		parts.append(title_text)
+	return " ".join(parts).strip_edges()
+
+
+func _format_read_day_entry_text(day_value: int) -> String:
+	return "第 %d 天（%d 封）" % [day_value, _get_day_messages(day_value).size()]
 
 
 func _get_main_choices() -> Array[Dictionary]:
@@ -974,21 +1245,22 @@ func _coerce_global_value_by_type(value_type: String, raw_value):
 func _open_mail_home() -> void:
 	ui_page = PAGE_MAIL_HOME
 	show_selected_mail_body = false
+	selected_mail_home_index = _wrap_index(selected_mail_home_index, _get_mail_home_options().size())
 	transient_hint = ""
 
 
 func _open_unread_mail_list() -> void:
 	ui_page = PAGE_MAIL_UNREAD_LIST
 	show_selected_mail_body = false
-	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_mails().size())
+	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_option_count())
 
 
 func _open_read_day_list() -> void:
 	ui_page = PAGE_MAIL_READ_DAY_LIST
 	show_selected_mail_body = false
 	var read_days = _get_read_days()
-	selected_day_index = _wrap_index(selected_day_index, read_days.size())
-	if not read_days.is_empty():
+	selected_day_index = _wrap_index(selected_day_index, _get_read_day_option_count())
+	if not read_days.is_empty() and selected_day_index < read_days.size():
 		selected_day_value = read_days[selected_day_index]
 	else:
 		selected_day_value = -1
@@ -997,13 +1269,14 @@ func _open_read_day_list() -> void:
 func _open_selected_day_messages(origin_page: String) -> void:
 	var read_days = _get_read_days()
 	if read_days.is_empty():
-		transient_hint = "当前没有已读邮件。"
+		_open_read_day_list()
 		return
 
 	selected_day_index = _wrap_index(selected_day_index, read_days.size())
 	selected_day_value = read_days[selected_day_index]
-	selected_message_index = _wrap_index(selected_message_index, _get_day_messages(selected_day_value).size())
+	selected_message_index = _wrap_index(selected_message_index, _get_day_message_option_count())
 	show_selected_mail_body = false
+	selected_mail_body_action_index = 0
 	ui_page = PAGE_MAIL_DAY_MESSAGE_LIST
 	mail_day_origin_page = origin_page
 
@@ -1011,7 +1284,7 @@ func _open_selected_day_messages(origin_page: String) -> void:
 func _open_unread_mail(index: int) -> void:
 	var unread_mails = _get_unread_mails()
 	if unread_mails.is_empty():
-		transient_hint = "当前没有未读邮件。"
+		_open_unread_mail_list()
 		return
 
 	selected_unread_index = _wrap_index(index, unread_mails.size())
@@ -1023,10 +1296,11 @@ func _open_unread_mail(index: int) -> void:
 	mail_day_origin_page = PAGE_MAIL_UNREAD_LIST
 	ui_page = PAGE_MAIL_DAY_MESSAGE_LIST
 	show_selected_mail_body = true
+	selected_mail_body_action_index = 0
 
 	var day_messages = _get_day_messages(selected_day_value)
 	selected_message_index = _find_message_index(day_messages, str(entry.get("id", "")))
-	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_mails().size())
+	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_option_count())
 
 
 func _return_to_day_origin() -> void:
@@ -1188,6 +1462,78 @@ func _wrap_index(index: int, size: int) -> int:
 	if wrapped < 0:
 		wrapped += size
 	return wrapped
+
+
+func _apply_saved_global_values(saved_values) -> void:
+	if not (saved_values is Dictionary):
+		return
+
+	for global_id in saved_values.keys():
+		if not story_globals.has(global_id):
+			continue
+		global_values[global_id] = _coerce_global_value(global_id, saved_values[global_id])
+
+
+func _restore_saved_mail_flags(saved_flags) -> Dictionary:
+	var restored: Dictionary = {}
+	if not (saved_flags is Dictionary):
+		return restored
+
+	for mail_id in saved_flags.keys():
+		var normalized_mail_id = str(mail_id).strip_edges()
+		if normalized_mail_id == "" or not _has_mail_entry(normalized_mail_id):
+			continue
+		restored[normalized_mail_id] = true
+
+	return restored
+
+
+func _restore_saved_page(page_name: String) -> String:
+	match page_name:
+		PAGE_MAIN, PAGE_MAIL_HOME, PAGE_MAIL_UNREAD_LIST, PAGE_MAIL_READ_DAY_LIST, PAGE_MAIL_DAY_MESSAGE_LIST:
+			return page_name
+		_:
+			return PAGE_MAIN
+
+
+func _restore_mail_origin_page(page_name: String) -> String:
+	match page_name:
+		PAGE_MAIL_UNREAD_LIST, PAGE_MAIL_READ_DAY_LIST:
+			return page_name
+		_:
+			return PAGE_MAIL_READ_DAY_LIST
+
+
+func _clamp_restored_ui_state() -> void:
+	selected_main_choice_index = _wrap_index(selected_main_choice_index, _get_main_choices().size())
+	selected_mail_home_index = _wrap_index(selected_mail_home_index, _get_mail_home_options().size())
+	selected_unread_index = _wrap_index(selected_unread_index, _get_unread_option_count())
+
+	var read_days = _get_read_days()
+	selected_day_index = _wrap_index(selected_day_index, _get_read_day_option_count())
+	if read_days.is_empty():
+		selected_day_value = -1
+	else:
+		if selected_day_index < read_days.size():
+			selected_day_value = read_days[selected_day_index]
+		elif not read_days.has(selected_day_value):
+			selected_day_value = read_days[selected_day_index]
+
+	var day_messages = _get_day_messages(selected_day_value)
+	selected_message_index = _wrap_index(selected_message_index, _get_day_message_option_count())
+	selected_mail_body_action_index = _wrap_index(selected_mail_body_action_index, _get_mail_body_action_options().size())
+	if day_messages.is_empty():
+		show_selected_mail_body = false
+
+	match ui_page:
+		PAGE_MAIL_DAY_MESSAGE_LIST:
+			if day_messages.is_empty():
+				show_selected_mail_body = false
+		PAGE_MAIL_READ_DAY_LIST:
+			if read_days.is_empty():
+				selected_day_value = -1
+		PAGE_MAIL_UNREAD_LIST:
+			selected_unread_index = _wrap_index(selected_unread_index, _get_unread_option_count())
 
 
 func _append_warning(message: String) -> void:

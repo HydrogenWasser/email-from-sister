@@ -86,13 +86,59 @@ theme_override_constants/separation = 8
 
 [node name="Prefix" type="Label" parent="CanvasLayer/MainLayout/InputArea"]
 layout_mode = 2
-text = "[ 指令输入 ] >"
+text = ""
 
-[node name="CommandInput" type="LineEdit" parent="CanvasLayer/MainLayout/InputArea"]
+[node name="PauseOverlay" type="Control" parent="CanvasLayer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="CanvasLayer/PauseOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.86)
+
+[node name="MenuFrame" type="MarginContainer" parent="CanvasLayer/PauseOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 120.0
+offset_top = 100.0
+offset_right = -120.0
+offset_bottom = -120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuLayout" type="VBoxContainer" parent="CanvasLayer/PauseOverlay/MenuFrame"]
 layout_mode = 2
-size_flags_horizontal = 3
-flat = true
-caret_blink = true
+theme_override_constants/separation = 18
+
+[node name="PauseTitle" type="Label" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
+layout_mode = 2
+text = "[ 暂停 ]"
+
+[node name="PauseDividerTop" type="HSeparator" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
+layout_mode = 2
+
+[node name="PauseBodyText" type="RichTextLabel" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+size_flags_vertical = 3
+scroll_active = false
+
+[node name="PauseDividerBottom" type="HSeparator" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
+layout_mode = 2
+
+[node name="PauseOptionsText" type="RichTextLabel" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
+layout_mode = 2
+fit_content = true
+scroll_active = false
 
 [node name="CRT_Overlay" type="ColorRect" parent="CanvasLayer"]
 material = SubResource("1_crt_material")
@@ -103,5 +149,3 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 0)
-
-[connection signal="text_submitted" from="CanvasLayer/MainLayout/InputArea/CommandInput" to="." method="_on_command_input_text_submitted"]
