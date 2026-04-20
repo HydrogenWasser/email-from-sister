@@ -91,9 +91,9 @@
     {
       "id": "node_mnytil8k_pmhnd6",
       "title": "客厅",
-      "body": "",
+      "body": "外婆躺在摇椅上听小说。\n\n自从她眼睛不好以后，就只能听书了。\n\n她经常说，妹妹爱看书是一个好习惯。\n\n确实，家里除了她，就只有妹妹有看书的习惯。",
       "position": {
-        "x": 3168,
+        "x": 3168.8770630757253,
         "y": 203
       },
       "tags": [],
@@ -110,26 +110,6 @@
           }
         },
         {
-          "id": "choice_mnytk4qd_5jnrb1",
-          "text": "去父母的房间",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mnytl35j_i8ryb5"
-          }
-        },
-        {
-          "id": "choice_mnytk700_iq6sz6",
-          "text": "去外婆的房间",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1dfbnq_qvhtwn"
-          }
-        },
-        {
           "id": "choice_mo07hpx0_bonq8x",
           "text": "回到自己房间",
           "visibilityCondition": null,
@@ -137,16 +117,6 @@
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo07deqf_ia46n9"
-          }
-        },
-        {
-          "id": "choice_mo1dewxl_vnbpj7",
-          "text": "出门",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mnytl3ls_y2nmdw"
           }
         }
       ],
@@ -191,8 +161,8 @@
       "title": "妹妹的房间",
       "body": "妹妹的遗物基本上都已经收拾完了。\n\n现在也没理由再进她的房间了。\n\n只会徒增悲伤罢了。",
       "position": {
-        "x": 3560,
-        "y": 32
+        "x": 3552.10643231847,
+        "y": 139.0016952385168
       },
       "tags": [],
       "colorToken": "sand",
@@ -200,54 +170,6 @@
         {
           "id": "choice_mo07i7qn_t2r5mf",
           "text": "前往客厅",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mnytil8k_pmhnd6"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mnytl35j_i8ryb5",
-      "title": "父母的房间",
-      "body": "父母的房间还是不要进去的好。",
-      "position": {
-        "x": 3560,
-        "y": 288
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo07igfh_me4v80",
-          "text": "前往客厅",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mnytil8k_pmhnd6"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mnytl3ls_y2nmdw",
-      "title": "街道",
-      "body": "街道上空空荡荡人来人往。\n\n不过今天没有什么出门的必要。\n\n还是回家吧。",
-      "position": {
-        "x": 3560,
-        "y": 800
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo07hhrx_c8e6ia",
-          "text": "回家",
           "visibilityCondition": null,
           "effects": [],
           "route": {
@@ -305,10 +227,10 @@
     {
       "id": "node_mo07tikb_6rv880",
       "title": "New Node",
-      "body": "我已经放弃了解释她的死。\n\n",
+      "body": "今天是妹妹死后的第四天。\n\n我已经放弃了向其他人解释这件事。\n\n",
       "position": {
-        "x": 2776,
-        "y": 1042
+        "x": 2779.9881371012552,
+        "y": 1148.3503227001422
       },
       "tags": [
         "第4天"
@@ -389,8 +311,8 @@
       "title": "New Node",
       "body": "我收到了第四封来自妹妹账号的邮件。\n\n很难说我看见它时是什么心情,可能是期待,也可能是疑惑。但不论如何,我会立刻打开。",
       "position": {
-        "x": 8656,
-        "y": 1511
+        "x": 8357.767346485907,
+        "y": 1511.3441747341703
       },
       "tags": [],
       "colorToken": "sand",
@@ -399,6 +321,7 @@
           "id": "choice_mo08mrve_5sz0t2",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -410,7 +333,9 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "[第7天]-[第1封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo07y69g_y0fb8b",
@@ -559,8 +484,8 @@
       "title": "New Node",
       "body": "我毫不疑心地看完这些邮件。\n\n我相信这是妹妹所想的。\n\n但是，这不太可能是妹妹发来的。\n\n对吧？",
       "position": {
-        "x": 9048,
-        "y": 1501
+        "x": 8933.501315730262,
+        "y": 1502.3293790337516
       },
       "tags": [],
       "colorToken": "sand",
@@ -605,6 +530,7 @@
           "id": "choice_mo0h7itn_s6f96m",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -637,6 +563,7 @@
           "id": "choice_mo0bhv1v_lmoay4",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -669,6 +596,7 @@
           "id": "choice_mo0bwwnl_olf6k1",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": false
@@ -687,7 +615,7 @@
     {
       "id": "node_mo08nss6_utfjrx",
       "title": "New Node",
-      "body": "这三天里，一切照旧。\n\n来安慰和悼念的亲戚朋友也好，沉溺在悲伤里的家人也好，有模有样的哭泣之后人们还是会分享起这两日的八卦。\n\n生活永远都在缓慢地推动人们一切行程。\n\n",
+      "body": "过去的三天里，一切照旧。\n\n来安慰和悼念的亲戚朋友也好，沉溺在悲伤里的家人也好，有模有样的哭泣之后人们还是会分享起这两日的八卦。\n\n生活永远都在缓慢地推动人们一切行程。\n\n",
       "position": {
         "x": 7480,
         "y": 1512
@@ -726,7 +654,7 @@
           "effects": [],
           "route": {
             "mode": "direct",
-            "targetNodeId": "node_mo08toyj_v2ur71"
+            "targetNodeId": "node_mo07wlmi_6q00db"
           }
         }
       ],
@@ -738,7 +666,7 @@
       "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n\n实话说,还有点害怕。\n\n",
       "position": {
         "x": 12364.565939436256,
-        "y": 601.3680951411844
+        "y": 596.0505790061773
       },
       "tags": [],
       "colorToken": "sand",
@@ -747,6 +675,7 @@
           "id": "choice_mo0ad5ab_7nmv0p",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -758,44 +687,22 @@
           }
         }
       ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo08toyj_v2ur71",
-      "title": "New Node",
-      "body": "此时手机里传来震动。",
-      "position": {
-        "x": 8264,
-        "y": 1530
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo08u00n_r43ev8",
-          "text": "继续",
-          "visibilityCondition": null,
-          "effects": [
-            {
-              "globalId": "global_mo07mpww_l7avop",
-              "operator": "set",
-              "value": false
-            }
-          ],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo07wlmi_6q00db"
-          }
-        }
-      ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "[第7天]-[第2封]-[妹妹].txt",
+        "[第7天]-[第3封]-[妹妹].txt",
+        "[第7天]-[第4封]-[妹妹].txt",
+        "[第7天]-[第5封]-[妹妹].txt",
+        "[第7天]-[第6封]-[妹妹].txt",
+        "[第7天]-[第7封]-[妹妹].txt",
+        "[第7天]-[第8封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo08wc4c_pc7kqr",
       "title": "New Node",
       "body": "我终于还是下楼了。\n\n站在水果店前，盯着新鲜的苹果枣子，发呆很久，还是没有食欲。\n\n我根本不喜欢吃水果。\n\n",
       "position": {
-        "x": 9440,
+        "x": 9442.314583333333,
         "y": 1412
       },
       "tags": [],
@@ -835,7 +742,7 @@
       "title": "New Node",
       "body": "回家的路上，我路过了那个小超市。\n\n外婆是爱吃糖的。\n\n\n",
       "position": {
-        "x": 9832,
+        "x": 9833.157291666666,
         "y": 1421
       },
       "tags": [],
@@ -875,7 +782,7 @@
       "title": "New Node",
       "body": "回到家中，已经到了中午了。\n\n家里还是那个样子。\n\n虽然外婆在家里，但是对我来说，这个家总是空空荡荡的。\n\n还有些冷。\n\n尽管外面是个晴天。",
       "position": {
-        "x": 10224,
+        "x": 10226.314583333333,
         "y": 1393
       },
       "tags": [],
@@ -885,6 +792,7 @@
           "id": "choice_mo091zkv_ecj1ai",
           "text": "把糖给外婆",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo092a4m_erh4wf",
             "operator": "eq",
             "value": true
@@ -919,7 +827,7 @@
       "title": "New Node",
       "body": "我把硬糖给外婆了。\n\n她很憔悴地挤出了微笑，然后开始提妹妹生前是多么孝顺多么可爱的孩子。\n\n我听了半天，伤心和耐心的幅度呈反比，一个飙升一个狂跌。",
       "position": {
-        "x": 10616,
+        "x": 10618.314583333333,
         "y": 1350
       },
       "tags": [],
@@ -953,6 +861,7 @@
           "id": "choice_mo0960hz_93o7bb",
           "text": "吃水果",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0954rp_6h8rzx",
             "operator": "eq",
             "value": true
@@ -1015,6 +924,7 @@
           "id": "choice_mo0abg9a_cq15y3",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo2zmbfd_6jpg0d",
             "operator": "eq",
             "value": true
@@ -1031,6 +941,7 @@
             "branches": [
               {
                 "condition": {
+                  "type": "atomic",
                   "globalId": "global_mo0ac9ac_7y0d9n",
                   "operator": "eq",
                   "value": true
@@ -1045,6 +956,7 @@
           "id": "choice_mo2zzary_o6a1wc",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo2zmbfd_6jpg0d",
             "operator": "eq",
             "value": false
@@ -1145,6 +1057,7 @@
           "id": "choice_mo0aef6v_ulcgbi",
           "text": "去吃水果",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0954rp_6h8rzx",
             "operator": "eq",
             "value": true
@@ -1159,6 +1072,7 @@
           "id": "choice_mo1krsru_tt0fys",
           "text": "不打算吃水果",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0954rp_6h8rzx",
             "operator": "eq",
             "value": true
@@ -1173,6 +1087,7 @@
           "id": "choice_mo33ssft_l1aytf",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0954rp_6h8rzx",
             "operator": "eq",
             "value": false
@@ -1208,7 +1123,19 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "-[第7天]-[第2封]-[妹妹].txt",
+        "-[第7天]-[第3封]-[妹妹].txt",
+        "-[第7天]-[第4封]-[妹妹].txt",
+        "-[第7天]-[第5封]-[妹妹].txt",
+        "-[第7天]-[第6封]-[妹妹].txt",
+        "-[第7天]-[第7封]-[妹妹].txt",
+        "-[第7天]-[第8封]-[妹妹].txt",
+        "-[第7天]-[第9封]-[妹妹].txt",
+        "-[第7天]-[第10封]-[妹妹].txt",
+        "-[第7天]-[第11封]-[妹妹].txt",
+        "-[第7天]-[第12封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo0ahc25_gf5jyb",
@@ -1395,7 +1322,7 @@
       "title": "New Node",
       "body": "我坐在沙发上,看若窗外的天空走神。\n\n今天天气不怎么样。\n\n风似乎很大。\n\n这个办公楼平时有这么安静吗?\n\n",
       "position": {
-        "x": 18474.499199470043,
+        "x": 18473.16982043629,
         "y": 806.512007949362
       },
       "tags": [],
@@ -1405,6 +1332,7 @@
           "id": "choice_mo0aww5t_vcfhwf",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -1493,6 +1421,7 @@
           "id": "choice_mo0ayhwe_ah0prm",
           "text": "给妹妹送衣服",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": false
@@ -1521,7 +1450,7 @@
       "title": "New Node",
       "body": "这个楼梯倾斜得好厉害，感觉有点踩不稳,我得扶着扶手。\n\n算了，我手里拿着妹妹的衣服，扶手会把它们弄脏的。\n\n",
       "position": {
-        "x": 20781.91304347826,
+        "x": 20785.901180579516,
         "y": 1010.9565217391305
       },
       "tags": [],
@@ -1594,6 +1523,7 @@
           "id": "choice_mo0b1yah_omgnzc",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": false
@@ -1629,15 +1559,34 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "~[第12天]-[第2封]-[妹妹].txt",
+        "~[第12天]-[第3封]-[妹妹].txt",
+        "~[第12天]-[第4封]-[妹妹].txt",
+        "~[第12天]-[第5封]-[妹妹].txt",
+        "~[第12天]-[第6封]-[妹妹].txt",
+        "~[第12天]-[第7封]-[妹妹].txt",
+        "~[第12天]-[第8封]-[妹妹].txt",
+        "~[第12天]-[第9封]-[妹妹].txt",
+        "~[第12天]-[第10封]-[妹妹].txt",
+        "~[第12天]-[第11封]-[妹妹].txt",
+        "~[第12天]-[第12封]-[妹妹].txt",
+        "~[第12天]-[第13封]-[妹妹].txt",
+        "~[第12天]-[第14封]-[妹妹].txt",
+        "~[第12天]-[第15封]-[妹妹].txt",
+        "~[第12天]-[第16封]-[妹妹].txt",
+        "~[第12天]-[第17封]-[妹妹].txt",
+        "~[第12天]-[第18封]-[妹妹].txt",
+        "~[第12天]-[第19封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo0b38jq_9gpr3w",
       "title": "New Node",
-      "body": "邮件消息提醒来了。",
+      "body": "熟悉的邮件消息提醒来了。",
       "position": {
-        "x": 22768,
-        "y": 941
+        "x": 22762.682483864995,
+        "y": 939.6706209662484
       },
       "tags": [],
       "colorToken": "sand",
@@ -1646,6 +1595,7 @@
           "id": "choice_mo0b7amv_lsjjw7",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -1664,10 +1614,10 @@
     {
       "id": "node_mo0b3o4y_cb2iog",
       "title": "New Node",
-      "body": "\n屏幕上的小怪乱叫着逃跑，头顶着只剩不到5%的血条。\n\n我还是先把游戏打完吧。\n\n",
+      "body": "\n屏幕上的小怪乱叫着逃跑，头顶着只剩不到5%的血条。\n\n\n",
       "position": {
-        "x": 23160,
-        "y": 922
+        "x": 23144.04745159498,
+        "y": 906.0474515949788
       },
       "tags": [],
       "colorToken": "sand",
@@ -1689,7 +1639,7 @@
           "effects": [],
           "route": {
             "mode": "direct",
-            "targetNodeId": "node_mo0bf4j2_hv8emi"
+            "targetNodeId": "node_mo1i7mgy_k801dp"
           }
         }
       ],
@@ -1700,8 +1650,8 @@
       "title": "New Node",
       "body": "我放下鼠标,站起身。\n\n我知道这次该做什么。\n\n",
       "position": {
-        "x": 23945.99773626956,
-        "y": 983.962648447741
+        "x": 23583.077260055325,
+        "y": 999.9151968527624
       },
       "tags": [],
       "colorToken": "sand",
@@ -1720,36 +1670,12 @@
       "fileTriggers": []
     },
     {
-      "id": "node_mo0bf4j2_hv8emi",
-      "title": "New Node",
-      "body": "游戏是一种很好的消遣。\n\n可以短暂地让我从一种虚无的情感中走出来。\n\n",
-      "position": {
-        "x": 23552,
-        "y": 673
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo0bhlxd_j5f7gu",
-          "text": "继续",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1i7mgy_k801dp"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
       "id": "node_mo0biqm0_9kqus5",
       "title": "New Node",
       "body": "口红是在沙发的缝隙间找到的。\n\n也不知怎么的到了那里。\n\n我放回了妹妹的梳妆台。\n\n",
       "position": {
-        "x": 24336,
-        "y": 942
+        "x": 24273.519185413665,
+        "y": 944.6587580675034
       },
       "tags": [],
       "colorToken": "sand",
@@ -1770,7 +1696,7 @@
     {
       "id": "node_mo0bjduq_9jxfol",
       "title": "New Node",
-      "body": "外婆在客厅喊我吃饭。",
+      "body": "我听到外婆在客厅喊我吃饭。\n\n外婆做的饭还是很好吃的。\n\n但饭桌上并没有人说话。\n\n\n",
       "position": {
         "x": 24728,
         "y": 951
@@ -1780,7 +1706,7 @@
       "choices": [
         {
           "id": "choice_mo0bkb6y_y2v6uh",
-          "text": "去客厅",
+          "text": "去吃饭",
           "visibilityCondition": null,
           "effects": [],
           "route": {
@@ -1794,28 +1720,19 @@
     {
       "id": "node_mo0bk6z5_7frxkl",
       "title": "New Node",
-      "body": "",
+      "body": "\n",
       "position": {
-        "x": 25120,
-        "y": 871
+        "x": 25115.900030848257,
+        "y": 867.7002123670852
       },
       "tags": [],
       "colorToken": "sand",
       "choices": [
         {
-          "id": "choice_mo0bkhtp_ys3nks",
-          "text": "去父母的房间",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo0c8uug_dwepf9"
-          }
-        },
-        {
           "id": "choice_mo0bki10_8fdae0",
           "text": "去妹妹的房间",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0bo3z2_xn3at1",
             "operator": "eq",
             "value": true
@@ -1840,6 +1757,7 @@
           "id": "choice_mo0bpxxa_iwur4m",
           "text": "去妹妹的房间",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0bo3z2_xn3at1",
             "operator": "eq",
             "value": false
@@ -1858,8 +1776,8 @@
       "title": "New Node",
       "body": "妹妹梳妆台上，口红不见了。\n\n",
       "position": {
-        "x": 25572.930956221582,
-        "y": 737
+        "x": 25471.89814965645,
+        "y": 698.4480080211986
       },
       "tags": [],
       "colorToken": "sand",
@@ -1882,8 +1800,8 @@
       "title": "New Node",
       "body": "我特意等到了睡前。\n\n没有看见上百封邮件刷屏似的出现叫我再找一次。\n\n确信这次完成了妹妹说的话，口红已经算是被找到收起来了，我这才安心睡下。",
       "position": {
-        "x": 26688,
-        "y": 1125
+        "x": 26131.342708333334,
+        "y": 806.744791666667
       },
       "tags": [],
       "colorToken": "sand",
@@ -1904,10 +1822,10 @@
     {
       "id": "node_mo0borr5_glrjr0",
       "title": "New Node",
-      "body": "饭桌上没有人说话。\n\n外婆做的饭是很好吃的。\n\n但是吃起来毫无味道。",
+      "body": "饭桌上没有人说话。\n\n不过外婆做的饭还是很好吃的。\n\n",
       "position": {
-        "x": 25512,
-        "y": 975
+        "x": 25534.689826548674,
+        "y": 911.2844461857728
       },
       "tags": [],
       "colorToken": "sand",
@@ -1916,6 +1834,7 @@
           "id": "choice_mo0brukk_yek4cw",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0bo3z2_xn3at1",
             "operator": "eq",
             "value": true
@@ -1930,6 +1849,7 @@
           "id": "choice_mo0brxk0_addq7i",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo0bo3z2_xn3at1",
             "operator": "eq",
             "value": false
@@ -1970,10 +1890,10 @@
     {
       "id": "node_mo0bsaxw_75t2pv",
       "title": "New Node",
-      "body": "此时，我的手机开始猛烈的震动起来。\n\n我看见上百封邮件刷屏似的出现叫我再找一次。\n\n但是现在是吃饭时间。\n\n谁会去帮她找口红啊。",
+      "body": "此时，我的手机开始猛烈的震动起来。\n\n我看见好几封邮件刷屏似的出现叫我再找一次。\n\n但是现在是吃饭时间。\n\n谁会去帮她找口红啊。",
       "position": {
-        "x": 25921.97962642604,
-        "y": 885.9909450782402
+        "x": 26122.905140134277,
+        "y": 1307.3266512163264
       },
       "tags": [],
       "colorToken": "sand",
@@ -1996,8 +1916,8 @@
       "title": "New Node",
       "body": "根本没有意义。",
       "position": {
-        "x": 26688,
-        "y": 887
+        "x": 26660.225,
+        "y": 1209.8843749999999
       },
       "tags": [],
       "colorToken": "sand",
@@ -2030,6 +1950,7 @@
           "id": "choice_mo1ixdbp_a8tsyu",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -2040,6 +1961,7 @@
             "branches": [
               {
                 "condition": {
+                  "type": "atomic",
                   "globalId": "global_mo07euyf_naatma",
                   "operator": "gte",
                   "value": 50
@@ -2290,30 +2212,6 @@
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo0hog8g_cfs4vf"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo0c8uug_dwepf9",
-      "title": "New Node",
-      "body": "父母的房间干干净净的。\n",
-      "position": {
-        "x": 25512,
-        "y": 499
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo0c9auh_huqvcr",
-          "text": "去客厅",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo0bk6z5_7frxkl"
           }
         }
       ],
@@ -2793,30 +2691,6 @@
       "fileTriggers": []
     },
     {
-      "id": "node_mo1dfbnq_qvhtwn",
-      "title": "New Node",
-      "body": "外婆躺在摇椅上听小说。\n\n自从她眼睛不好以后，就只能听书了。\n\n她经常说，妹妹爱看书是一个好习惯。\n\n确实，家里除了她，就只有妹妹有看书的习惯。",
-      "position": {
-        "x": 3560,
-        "y": 526
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1et1i5_d6onku",
-          "text": "前往客厅",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mnytil8k_pmhnd6"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
       "id": "node_mo1erbyo_kian5b",
       "title": "New Node",
       "body": "希望她的网友们能像世界上绝大多数的网友一样，懂得萍水相逢素昧平生的人并没有什么义务互相说明自己的状态行程，以及为什么突然失联这件事。\n\n人应该学会自觉寻找新的朋友一起看地狱笑话梗图。",
@@ -2855,6 +2729,7 @@
           "id": "choice_mo1f1mhz_51oe8h",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -2866,12 +2741,16 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "[第1天]-[第1封]-[妹妹].txt",
+        "[第2天]-[第1封]-[妹妹].txt",
+        "[第3天]-[第1封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo1f26w1_gyg4tq",
       "title": "New Node",
-      "body": "好吧，我承认我们算默契的，虽然默契的只是结果而不是过程中的思维方式。\n\n",
+      "body": "我承认我们算默契的，虽然默契的只是结果而不是过程中的思维方式。\n\n扫地机器人被买回来第一天，妹妹就明确地说自己不喜欢它，吵死了，但又不得不让它进自己的房间。\n\n我也确实有个美少女手办,可是拜托,谁能拒绝镜音铃? \n\n",
       "position": {
         "x": 4344,
         "y": 1056
@@ -2881,54 +2760,6 @@
       "choices": [
         {
           "id": "choice_mo1f5nzg_3rtz1r",
-          "text": "继续",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1f5g2g_roklge"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo1f5g2g_roklge",
-      "title": "New Node",
-      "body": "扫地机器人被买回来第一天，妹妹就明确地说自己不喜欢它，又吵，又不得不让它进自己的房间。\n",
-      "position": {
-        "x": 4736,
-        "y": 1047
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1f5tnq_i1e19z",
-          "text": "继续",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1f5gbi_bhkw4y"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo1f5gbi_bhkw4y",
-      "title": "New Node",
-      "body": "我确实有个美少女手办,可是拜托,谁能拒绝镜音铃? ",
-      "position": {
-        "x": 5128,
-        "y": 1056
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1f5zgo_nroxxq",
           "text": "继续",
           "visibilityCondition": null,
           "effects": [],
@@ -2945,8 +2776,8 @@
       "title": "New Node",
       "body": "邮件中没有出现什么“哥哥你看得见吧，我恨你”、“是那个女人害死了我”之类的狂躁女鬼发言。\n\n也没有出现“”这是灵异主题综艺的恶作剧啦吓到了吗“的字眼。\n\n虽然不明白邮件来源，但这的确是妹妹的口吻和习惯。\n\n",
       "position": {
-        "x": 5520,
-        "y": 1038
+        "x": 4987.645833333334,
+        "y": 1035.6854166666667
       },
       "tags": [],
       "colorToken": "sand",
@@ -2969,8 +2800,8 @@
       "title": "New Node",
       "body": "外面的扫地机器人响起来,轰隆隆行驶到了我房间门口。",
       "position": {
-        "x": 5912,
-        "y": 1026
+        "x": 5563.655208333334,
+        "y": 1043.359375
       },
       "tags": [],
       "colorToken": "sand",
@@ -2995,6 +2826,7 @@
           "id": "choice_mo1fjiyw_i2ql18",
           "text": "无视扫地机器人",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo2z744d_fzk2wj",
             "operator": "eq",
             "value": false
@@ -3013,8 +2845,8 @@
       "title": "New Node",
       "body": "她的遗物里确实有个帅哥立牌。\n\n我也不认识这个二次元帅哥是谁，她很少给我分享这方面的事。",
       "position": {
-        "x": 7480,
-        "y": 1177
+        "x": 7473.056250000001,
+        "y": 960.5864583333332
       },
       "tags": [],
       "colorToken": "sand",
@@ -3023,6 +2855,7 @@
           "id": "choice_mo1g1cwr_mgo55n",
           "text": "清洗立牌",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo1g3aq3_nqwbzb",
             "operator": "eq",
             "value": false
@@ -3049,10 +2882,10 @@
     {
       "id": "node_mo1fjtdy_rsm5yn",
       "title": "New Node",
-      "body": "",
+      "body": "外婆躺在摇椅上听小说。\n\n我并不想打扰她。",
       "position": {
-        "x": 7088,
-        "y": 802
+        "x": 7084.528125000001,
+        "y": 803.1572916666667
       },
       "tags": [],
       "colorToken": "sand",
@@ -3068,26 +2901,6 @@
           }
         },
         {
-          "id": "choice_mo1fjyba_hgkfxv",
-          "text": "去父母的房间",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1fuywj_ajq41l"
-          }
-        },
-        {
-          "id": "choice_mo1fjyh9_phkisa",
-          "text": "去外婆的房间",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1fvzxd_lznlod"
-          }
-        },
-        {
           "id": "choice_mo1fjyl8_ghzbhk",
           "text": "回自己的房间",
           "visibilityCondition": null,
@@ -3095,40 +2908,6 @@
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo1fwo7u_6wchs0"
-          }
-        },
-        {
-          "id": "choice_mo1fkk3r_0xuker",
-          "text": "出门",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1fl2r6_m07axv"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo1fl2r6_m07axv",
-      "title": "New Node",
-      "body": "街道上空空荡荡人来人往。\n\n不过今天没有什么出门的必要。\n\n还是回家吧。",
-      "position": {
-        "x": 7480,
-        "y": 921
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1fl6m6_u4d0l9",
-          "text": "回家",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1fjtdy_rsm5yn"
           }
         }
       ],
@@ -3139,8 +2918,8 @@
       "title": "New Node",
       "body": "想到邮件内容,我走过去把它关上,充电口的电源也拔掉了。\n\n",
       "position": {
-        "x": 6304,
-        "y": 1056
+        "x": 6050.553125,
+        "y": 878.934375
       },
       "tags": [],
       "colorToken": "sand",
@@ -3159,60 +2938,12 @@
       "fileTriggers": []
     },
     {
-      "id": "node_mo1fuywj_ajq41l",
-      "title": "New Node",
-      "body": "父母的房间还是不要进去的好。",
-      "position": {
-        "x": 7480,
-        "y": 445
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1fv8ul_2vr4ie",
-          "text": "去客厅",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1fjtdy_rsm5yn"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo1fvzxd_lznlod",
-      "title": "New Node",
-      "body": "外婆躺在摇椅上听小说。\n\n我并不想打扰她。",
-      "position": {
-        "x": 7480,
-        "y": 683
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1fw6xg_v3c4r0",
-          "text": "去客厅",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1fjtdy_rsm5yn"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
       "id": "node_mo1fwo7u_6wchs0",
       "title": "New Node",
       "body": "我独自呆在房间里，坐在椅子上，看向窗外。\n\n天气很晴朗。",
       "position": {
-        "x": 6696,
-        "y": 1036
+        "x": 6507.361458333334,
+        "y": 1046.415625
       },
       "tags": [],
       "colorToken": "sand",
@@ -3245,8 +2976,8 @@
       "title": "New Node",
       "body": "我也学着邮件里描述的那样把立牌清洗了一遍,放在妹妹书桌上。",
       "position": {
-        "x": 7872,
-        "y": 914
+        "x": 7512.0822916666675,
+        "y": 694.1145833333334
       },
       "tags": [],
       "colorToken": "sand",
@@ -3285,6 +3016,7 @@
           "id": "choice_mo1gpzdh_w34hib",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -3296,7 +3028,9 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "[第9天]-[第1封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo1guvec_kczsns",
@@ -3445,36 +3179,18 @@
     {
       "id": "node_mo1i7mgy_k801dp",
       "title": "New Node",
-      "body": "刚刚邮件怎么说的？\n\n好像提到了口红。\n\n已经傍晚了。",
+      "body": "等我结束游戏时，已经是傍晚了。\n\n刚刚邮件怎么说的？\n\n好像提到了口红。",
       "position": {
-        "x": 23942.00226373044,
-        "y": 578.0622525870983
+        "x": 23601.681231089988,
+        "y": 544.8277767433041
       },
       "tags": [],
       "colorToken": "sand",
       "choices": [
         {
-          "id": "choice_mo1i8o9d_ruhh59",
-          "text": "找口红",
-          "visibilityCondition": {
-            "globalId": "global_mo07euyf_naatma",
-            "operator": "gt",
-            "value": 70
-          },
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo0biqm0_9kqus5"
-          }
-        },
-        {
           "id": "choice_mo1i8p8r_dk06se",
           "text": "继续",
-          "visibilityCondition": {
-            "globalId": "global_mo07euyf_naatma",
-            "operator": "lte",
-            "value": 70
-          },
+          "visibilityCondition": null,
           "effects": [],
           "route": {
             "mode": "direct",
@@ -3489,8 +3205,8 @@
       "title": "New Node",
       "body": "我打开邮件检查了一下，只有一封损坏的邮件。\n\n服务器真得修修了。",
       "position": {
-        "x": 24336,
-        "y": 653
+        "x": 24304.094903189958,
+        "y": 555.9553305361204
       },
       "tags": [],
       "colorToken": "sand",
@@ -3506,7 +3222,9 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "~[第15天]-[第1封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo1ih9ly_i17uz1",
@@ -3653,6 +3371,7 @@
           "id": "choice_mo1jrm2m_8m9ub4",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
@@ -3712,8 +3431,8 @@
       "title": "没有给糖-没有吃水果-睡醒",
       "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n\n实话说,还有点害怕。\n\n",
       "position": {
-        "x": 12292.394309960797,
-        "y": 1290.5809942436183
+        "x": 12303.029342230811,
+        "y": 1345.0855346274413
       },
       "tags": [],
       "colorToken": "sand",
@@ -3722,6 +3441,7 @@
           "id": "choice_mo300ph1_grg0y0",
           "text": "把糖给外婆",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo092a4m_erh4wf",
             "operator": "eq",
             "value": true
@@ -3742,6 +3462,7 @@
           "id": "choice_mo3062wd_oco7at",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo092a4m_erh4wf",
             "operator": "eq",
             "value": false
@@ -3753,7 +3474,19 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "[第7天]-[第2封]-[妹妹].txt",
+        "[第7天]-[第3封]-[妹妹].txt",
+        "[第7天]-[第4封]-[妹妹].txt",
+        "[第7天]-[第5封]-[妹妹].txt",
+        "[第7天]-[第6封]-[妹妹].txt",
+        "[第7天]-[第7封]-[妹妹].txt",
+        "[第7天]-[第8封]-[妹妹].txt",
+        "[第7天]-[第9封]-[妹妹].txt",
+        "[第7天]-[第10封]-[妹妹].txt",
+        "[第7天]-[第11封]-[妹妹].txt",
+        "[第7天]-[第12封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo300dri_0x8shv",
@@ -3902,6 +3635,7 @@
           "id": "choice_mo347ow3_uvrx6i",
           "text": "继续",
           "visibilityCondition": {
+            "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
             "value": true
