@@ -3,11 +3,19 @@ extends Node2D
 const PAUSE_OPTION_SAVE := "save"
 const PAUSE_OPTION_LOAD := "load"
 const PAUSE_OPTION_QUIT := "quit"
+const PAUSE_OPTION_BACK := "back"
+const PAUSE_OPTION_CONFIRM_OVERWRITE := "confirm_overwrite"
+const PAUSE_OPTION_CANCEL_OVERWRITE := "cancel_overwrite"
+
+const PAUSE_MODE_ROOT := "root"
+const PAUSE_MODE_SAVE_SELECT := "save_select"
+const PAUSE_MODE_LOAD_SELECT := "load_select"
+const PAUSE_MODE_SAVE_CONFIRM := "save_confirm"
 
 @export_range(1.0, 120.0, 1.0, "or_greater", "suffix:cps") var typewriter_characters_per_second: float = 35.0
 
 @onready var day_label: Label = $CanvasLayer/MainLayout/Header/DayLabel
-@onready var weather_label: Label = $CanvasLayer/MainLayout/Header/WeatherLabel
+@onready var san_label: Label = $CanvasLayer/MainLayout/Header/SanLabel
 @onready var content_text: RichTextLabel = $CanvasLayer/MainLayout/ContentText
 @onready var options_text: RichTextLabel = $CanvasLayer/MainLayout/OptionsText
 @onready var prefix_label: Label = $CanvasLayer/MainLayout/InputArea/Prefix
@@ -31,6 +39,8 @@ var sanity_state: String = "理智"
 
 var pause_menu_open: bool = false
 var pause_selected_index: int = 0
+var pause_mode: String = PAUSE_MODE_ROOT
+var pause_selected_slot_index: int = -1
 var option_attention_phase: float = 0.0
 var attention_overlay_active: bool = false
 var crt_material: ShaderMaterial
@@ -58,7 +68,7 @@ func _setup_ui_style() -> void:
 	var ui_font = SystemFont.new()
 	ui_font.font_names = ["JetBrains Mono", "Consolas", "SimSun", "Microsoft YaHei UI"]
 
-	for label in [day_label, weather_label, prefix_label, pause_title]:
+	for label in [day_label, san_label, prefix_label, pause_title]:
 		label.add_theme_font_override("font", ui_font)
 		label.add_theme_font_size_override("font_size", 18)
 		label.modulate = Color.WHITE
@@ -109,7 +119,7 @@ func _render_current_page() -> void:
 
 func _render_page_chrome() -> void:
 	day_label.text = "[ %s ]" % logic_manager.get_day_label()
-	weather_label.text = "[ 天气：%s ]" % logic_manager.get_weather_label()
+	san_label.text = "[ SAN：%s ]" % logic_manager.get_san_debug_label()
 	_render_option_text()
 	_render_pause_menu()
 
@@ -189,31 +199,99 @@ func _input(event: InputEvent) -> void:
 
 
 func _get_pause_options() -> Array[Dictionary]:
-	return [
-		{"id": PAUSE_OPTION_SAVE, "label": "保存游戏", "disabled": false},
-		{"id": PAUSE_OPTION_LOAD, "label": "读取存档", "disabled": not SaveManager.has_valid_save()},
-		{"id": PAUSE_OPTION_QUIT, "label": "退出游戏", "disabled": false}
-	]
+	match pause_mode:
+		PAUSE_MODE_SAVE_SELECT:
+			return _get_pause_save_slot_options()
+		PAUSE_MODE_LOAD_SELECT:
+			return _get_pause_load_slot_options()
+		PAUSE_MODE_SAVE_CONFIRM:
+			return [
+				{"id": PAUSE_OPTION_CONFIRM_OVERWRITE, "label": "确认覆盖", "disabled": false},
+				{"id": PAUSE_OPTION_CANCEL_OVERWRITE, "label": "取消", "disabled": false}
+			]
+		_:
+			return [
+				{"id": PAUSE_OPTION_SAVE, "label": "保存游戏", "disabled": false},
+				{"id": PAUSE_OPTION_LOAD, "label": "读取存档", "disabled": not SaveManager.has_any_valid_save()},
+				{"id": PAUSE_OPTION_QUIT, "label": "退出游戏", "disabled": false}
+			]
 
 
 func _activate_pause_option(option: Dictionary) -> void:
 	if bool(option.get("disabled", false)):
 		return
 
+	match pause_mode:
+		PAUSE_MODE_SAVE_SELECT:
+			_handle_pause_save_select(option)
+		PAUSE_MODE_LOAD_SELECT:
+			_handle_pause_load_select(option)
+		PAUSE_MODE_SAVE_CONFIRM:
+			_handle_pause_save_confirm(option)
+		_:
+			match str(option.get("id", "")):
+				PAUSE_OPTION_SAVE:
+					pause_mode = PAUSE_MODE_SAVE_SELECT
+					pause_selected_index = 0
+					_render_pause_menu()
+				PAUSE_OPTION_LOAD:
+					pause_mode = PAUSE_MODE_LOAD_SELECT
+					pause_selected_index = 0
+					_render_pause_menu()
+				PAUSE_OPTION_QUIT:
+					get_tree().quit()
+
+
+func _handle_pause_save_select(option: Dictionary) -> void:
 	match str(option.get("id", "")):
-		PAUSE_OPTION_SAVE:
-			if SaveManager.save_snapshot(logic_manager.build_save_snapshot()):
+		PAUSE_OPTION_BACK:
+			pause_mode = PAUSE_MODE_ROOT
+			pause_selected_index = 0
+			_render_pause_menu()
+		"save_slot":
+			pause_selected_slot_index = int(option.get("slot_index", -1))
+			if pause_selected_slot_index < 0:
+				return
+			if bool(option.get("occupied", false)):
+				pause_mode = PAUSE_MODE_SAVE_CONFIRM
+				pause_selected_index = 0
+				_render_pause_menu()
+				return
+			if SaveManager.save_snapshot_to_slot(pause_selected_slot_index, logic_manager.build_save_snapshot()):
 				_close_pause_menu()
 				_render_page_chrome()
-		PAUSE_OPTION_LOAD:
-			var snapshot = SaveManager.load_snapshot()
+
+
+func _handle_pause_load_select(option: Dictionary) -> void:
+	match str(option.get("id", "")):
+		PAUSE_OPTION_BACK:
+			pause_mode = PAUSE_MODE_ROOT
+			pause_selected_index = 0
+			_render_pause_menu()
+		"load_slot":
+			var slot_index = int(option.get("slot_index", -1))
+			if slot_index < 0:
+				return
+			var snapshot = SaveManager.load_snapshot_from_slot(slot_index)
 			if snapshot.is_empty():
 				return
 			if logic_manager.apply_save_snapshot(snapshot):
 				_close_pause_menu()
 				_render_current_page()
-		PAUSE_OPTION_QUIT:
-			get_tree().quit()
+
+
+func _handle_pause_save_confirm(option: Dictionary) -> void:
+	match str(option.get("id", "")):
+		PAUSE_OPTION_CONFIRM_OVERWRITE:
+			if pause_selected_slot_index < 0:
+				return
+			if SaveManager.save_snapshot_to_slot(pause_selected_slot_index, logic_manager.build_save_snapshot()):
+				_close_pause_menu()
+				_render_page_chrome()
+		PAUSE_OPTION_CANCEL_OVERWRITE:
+			pause_mode = PAUSE_MODE_SAVE_SELECT
+			pause_selected_index = pause_selected_slot_index if pause_selected_slot_index >= 0 else 0
+			_render_pause_menu()
 
 
 func _toggle_pause_menu() -> void:
@@ -226,13 +304,17 @@ func _toggle_pause_menu() -> void:
 		_complete_typewriter_text()
 
 	pause_menu_open = true
+	pause_mode = PAUSE_MODE_ROOT
 	pause_selected_index = 0
+	pause_selected_slot_index = -1
 	_render_pause_menu()
 
 
 func _close_pause_menu() -> void:
 	pause_menu_open = false
+	pause_mode = PAUSE_MODE_ROOT
 	pause_selected_index = 0
+	pause_selected_slot_index = -1
 	pause_overlay.visible = false
 
 
@@ -242,10 +324,11 @@ func _render_pause_menu() -> void:
 		return
 
 	pause_title.text = "[ 暂停 ]"
-	pause_body_text.text = "游戏已暂停。\n\n当前进度可以保存，或从已有存档恢复。"
+	pause_body_text.text = _get_pause_body_text()
 
 	var lines: Array[String] = []
 	var options = _get_pause_options()
+	pause_selected_index = _wrap_index(pause_selected_index, options.size())
 	for index in options.size():
 		var option = options[index]
 		var line = "- %s" % str(option.get("label", ""))
@@ -256,6 +339,59 @@ func _render_pause_menu() -> void:
 		lines.append(line)
 
 	pause_options_text.text = "\n".join(lines)
+
+
+func _get_pause_body_text() -> String:
+	match pause_mode:
+		PAUSE_MODE_SAVE_SELECT:
+			return "[保存游戏]\n\n选择一个存档栏位。"
+		PAUSE_MODE_LOAD_SELECT:
+			return "[读取存档]\n\n选择一个存档栏位。"
+		PAUSE_MODE_SAVE_CONFIRM:
+			return "[覆盖存档]\n\n确认要覆盖这个存档吗？\n%s" % _get_selected_pause_slot_label()
+		_:
+			return "游戏已暂停。\n\n当前进度可以保存，或从已有存档恢复。"
+
+
+func _get_pause_save_slot_options() -> Array[Dictionary]:
+	var options: Array[Dictionary] = []
+	for slot in SaveManager.get_save_slots():
+		options.append({
+			"id": "save_slot",
+			"slot_index": int(slot.get("slot_index", -1)),
+			"label": _format_pause_slot_label(slot),
+			"disabled": false,
+			"occupied": bool(slot.get("occupied", false))
+		})
+	options.append({"id": PAUSE_OPTION_BACK, "label": "返回", "disabled": false})
+	return options
+
+
+func _get_pause_load_slot_options() -> Array[Dictionary]:
+	var options: Array[Dictionary] = []
+	for slot in SaveManager.get_save_slots():
+		options.append({
+			"id": "load_slot",
+			"slot_index": int(slot.get("slot_index", -1)),
+			"label": _format_pause_slot_label(slot),
+			"disabled": not bool(slot.get("occupied", false))
+		})
+	options.append({"id": PAUSE_OPTION_BACK, "label": "返回", "disabled": false})
+	return options
+
+
+func _format_pause_slot_label(slot: Dictionary) -> String:
+	return "[栏位 %d] %s" % [
+		int(slot.get("slot_number", int(slot.get("slot_index", 0)) + 1)),
+		str(slot.get("save_time_label", SaveManager.EMPTY_SAVE_LABEL))
+	]
+
+
+func _get_selected_pause_slot_label() -> String:
+	for slot in SaveManager.get_save_slots():
+		if int(slot.get("slot_index", -1)) == pause_selected_slot_index:
+			return _format_pause_slot_label(slot)
+	return "[栏位 ?] %s" % SaveManager.EMPTY_SAVE_LABEL
 
 
 func _render_option_text(option_entries: Array[Dictionary] = []) -> void:

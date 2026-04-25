@@ -6,8 +6,10 @@ const PAGE_MAIL_UNREAD_LIST := "MAIL_UNREAD_LIST"
 const PAGE_MAIL_READ_DAY_LIST := "MAIL_READ_DAY_LIST"
 const PAGE_MAIL_DAY_MESSAGE_LIST := "MAIL_DAY_MESSAGE_LIST"
 
+const MAIN_MENU_SCENE_PATH := "res://scenes/MainMenu.tscn"
 const MAIL_HOME_TARGET := "__MAIL_HOME__"
 const READ_ALL_EMAILS_GLOBAL_NAME := "ReadAllEmails"
+const SAN_GLOBAL_NAME := "SAN"
 const DAY_TAG_PREFIX := "第"
 const DAY_TAG_SUFFIX := "天"
 
@@ -24,6 +26,7 @@ var story_global_definitions: Array[Dictionary] = []
 var story_globals: Dictionary = {}
 var global_values: Dictionary = {}
 var read_all_emails_global_id: String = ""
+var san_global_id: String = ""
 var current_scene_id: String = ""
 var current_scene_data: Dictionary = {}
 
@@ -38,6 +41,8 @@ var warning_messages: Array[String] = []
 var mail_entries: Array[Dictionary] = []
 var introduced_mail_ids: Dictionary = {}
 var read_mail_ids: Dictionary = {}
+var removed_mail_ids: Dictionary = {}
+var mail_body_overrides: Dictionary = {}
 var selected_unread_index: int = 0
 var selected_day_index: int = 0
 var selected_day_value: int = -1
@@ -131,6 +136,8 @@ func _load_mail_data() -> void:
 	mail_entries.clear()
 	introduced_mail_ids.clear()
 	read_mail_ids.clear()
+	removed_mail_ids.clear()
+	mail_body_overrides.clear()
 	default_day_label = "第 4 天"
 	day_label = default_day_label
 	current_day_number = 4
@@ -242,6 +249,7 @@ func _initialize_story_globals() -> void:
 	story_globals.clear()
 	global_values.clear()
 	read_all_emails_global_id = ""
+	san_global_id = ""
 
 	for global_definition in story_global_definitions:
 		var global_id = str(global_definition.get("id", "")).strip_edges()
@@ -262,6 +270,8 @@ func _initialize_story_globals() -> void:
 
 		if str(global_meta.get("name", "")) == READ_ALL_EMAILS_GLOBAL_NAME:
 			read_all_emails_global_id = global_id
+		if str(global_meta.get("name", "")) == SAN_GLOBAL_NAME:
+			san_global_id = global_id
 
 
 func _open_start_scene() -> void:
@@ -284,6 +294,8 @@ func _set_main_scene(scene_id: String) -> bool:
 	transient_hint = ""
 	_update_day_label_from_scene(current_scene_data)
 	_trigger_file_triggers_for_scene(current_scene_data)
+	if _scene_has_tag(current_scene_data, "End"):
+		call_deferred("_return_to_main_menu")
 	return true
 
 
@@ -299,6 +311,26 @@ func _update_day_label_from_scene(scene_data: Dictionary) -> void:
 			day_label = "第 %d 天" % parsed_day
 			current_day_number = parsed_day
 			return
+
+
+func _scene_has_tag(scene_data: Dictionary, target_tag: String) -> bool:
+	var tags_value = scene_data.get("tags", [])
+	if not (tags_value is Array):
+		return false
+
+	for tag_value in tags_value:
+		if str(tag_value).strip_edges() == target_tag:
+			return true
+
+	return false
+
+
+func _return_to_main_menu() -> void:
+	var tree = get_tree()
+	if tree == null:
+		return
+
+	tree.change_scene_to_file(MAIN_MENU_SCENE_PATH)
 
 
 func _parse_day_tag(tag_text: String) -> int:
@@ -330,6 +362,13 @@ func get_weather_label() -> String:
 	return weather_label
 
 
+func get_san_debug_label() -> String:
+	if san_global_id == "" or not global_values.has(san_global_id):
+		return "N/A"
+
+	return str(global_values[san_global_id])
+
+
 func build_save_snapshot() -> Dictionary:
 	initialize_game()
 
@@ -339,6 +378,8 @@ func build_save_snapshot() -> Dictionary:
 		"global_values": global_values.duplicate(true),
 		"introduced_mail_ids": introduced_mail_ids.duplicate(true),
 		"read_mail_ids": read_mail_ids.duplicate(true),
+		"removed_mail_ids": removed_mail_ids.duplicate(true),
+		"mail_body_overrides": mail_body_overrides.duplicate(true),
 		"ui_page": ui_page,
 		"selected_unread_index": selected_unread_index,
 		"selected_day_index": selected_day_index,
@@ -369,8 +410,14 @@ func apply_save_snapshot(snapshot: Dictionary) -> bool:
 
 	introduced_mail_ids = _restore_saved_mail_flags(snapshot.get("introduced_mail_ids", {}))
 	read_mail_ids = _restore_saved_mail_flags(snapshot.get("read_mail_ids", {}))
+	removed_mail_ids = _restore_saved_mail_flags(snapshot.get("removed_mail_ids", {}))
+	mail_body_overrides = _restore_saved_mail_body_overrides(snapshot.get("mail_body_overrides", {}))
 	for read_mail_id in read_mail_ids.keys():
 		introduced_mail_ids[read_mail_id] = true
+	for removed_mail_id in removed_mail_ids.keys():
+		introduced_mail_ids.erase(removed_mail_id)
+		read_mail_ids.erase(removed_mail_id)
+	_apply_saved_mail_body_overrides()
 
 	current_scene_id = scene_id
 	current_scene_data = story_nodes[scene_id]
@@ -985,14 +1032,9 @@ func _format_read_day_entry_text(day_value: int) -> String:
 
 func _get_main_choices() -> Array[Dictionary]:
 	var visible_story_choices = _get_visible_story_choices()
-	var final_choices: Array[Dictionary] = []
-	for story_choice in visible_story_choices:
-		final_choices.append(story_choice)
-
-	if _should_append_mail_choice(visible_story_choices):
-		final_choices.append(_create_mail_choice())
-
-	return final_choices
+	if visible_story_choices.is_empty() and not _get_unread_mails().is_empty():
+		return [_create_mail_choice()]
+	return visible_story_choices
 
 
 func _get_visible_story_choices() -> Array[Dictionary]:
@@ -1026,18 +1068,6 @@ func _build_visible_story_choice(choice_dict: Dictionary) -> Dictionary:
 		"synthetic": false,
 		"choice": choice_dict
 	}
-
-
-func _should_append_mail_choice(visible_story_choices: Array[Dictionary]) -> bool:
-	if introduced_mail_ids.is_empty():
-		return false
-
-	if visible_story_choices.size() == 1:
-		var only_choice_text = _normalize_input(str(visible_story_choices[0].get("text", "")).strip_edges())
-		if only_choice_text == _normalize_input("继续"):
-			return false
-
-	return true
 
 
 func _create_mail_choice() -> Dictionary:
@@ -1151,7 +1181,20 @@ func _apply_choice_effects(effects_value) -> void:
 			_push_transient_hint("效果引用了不存在的全局变量：%s" % global_id)
 			continue
 
-		global_values[global_id] = _coerce_global_value(global_id, effect_dict.get("value"))
+		var operator_name = str(effect_dict.get("operator", "set")).strip_edges().to_lower()
+		match operator_name:
+			"set", "lte":
+				global_values[global_id] = _coerce_global_value(global_id, effect_dict.get("value"))
+			"change":
+				if not _is_number_global(global_id):
+					_push_transient_hint("change 效果只能用于数值变量：%s" % global_id)
+					continue
+
+				var current_value = _to_number(global_values.get(global_id, 0))
+				var change_value = _to_number(effect_dict.get("value", 0))
+				global_values[global_id] = _coerce_global_value(global_id, current_value + change_value)
+			_:
+				_push_transient_hint("未支持的效果运算符：%s" % operator_name)
 
 
 func _resolve_choice_target(choice_dict: Dictionary) -> Dictionary:
@@ -1221,6 +1264,13 @@ func _coerce_global_value(global_id: String, raw_value):
 
 	var value_type = str(story_globals[global_id].get("value_type", "")).strip_edges()
 	return _coerce_global_value_by_type(value_type, raw_value)
+
+
+func _is_number_global(global_id: String) -> bool:
+	if not story_globals.has(global_id):
+		return false
+
+	return str(story_globals[global_id].get("value_type", "")).strip_edges() == "number"
 
 
 func _coerce_global_value_by_type(value_type: String, raw_value):
@@ -1312,7 +1362,7 @@ func _return_to_day_origin() -> void:
 
 
 func _trigger_file_triggers_for_scene(scene_data: Dictionary) -> void:
-	var file_triggers = scene_data.get("fileTriggers", [])
+	var file_triggers = scene_data.get("fileTriggers", scene_data.get("fileTrigers", []))
 	if file_triggers == null:
 		_sync_read_all_emails_global_from_mailbox()
 		return
@@ -1324,21 +1374,40 @@ func _trigger_file_triggers_for_scene(scene_data: Dictionary) -> void:
 
 	var seen_ids: Dictionary = {}
 	for trigger_value in file_triggers:
-		var file_id = str(trigger_value).strip_edges()
+		var trigger_text = str(trigger_value).strip_edges()
+		if trigger_text == "":
+			continue
+
+		var trigger_action = _parse_file_trigger_action(trigger_text)
+		var file_id = str(trigger_action.get("file_id", "")).strip_edges()
 		if file_id == "":
 			continue
-		if seen_ids.has(file_id):
-			continue
-		seen_ids[file_id] = true
 
-		if introduced_mail_ids.has(file_id):
+		var dedupe_key = "%s:%s" % [str(trigger_action.get("action", "introduce")), file_id]
+		if seen_ids.has(dedupe_key):
 			continue
+		seen_ids[dedupe_key] = true
 
 		if not _has_mail_entry(file_id):
-			_append_warning("fileTriggers 引用了不存在的邮件文件：%s" % file_id)
+			_append_warning("fileTriggers 引用了不存在的邮件文件：%s" % trigger_text)
 			continue
 
-		introduced_mail_ids[file_id] = true
+		match str(trigger_action.get("action", "introduce")):
+			"remove":
+				removed_mail_ids[file_id] = true
+				introduced_mail_ids.erase(file_id)
+				read_mail_ids.erase(file_id)
+				mail_body_overrides.erase(file_id)
+				_restore_mail_entry_body(file_id)
+			"corrupt":
+				_set_mail_body_override(file_id, "系统错误，无法读取邮件内容\n系统错误，无法读取邮件内容\n系统错误，无法读取邮件内容")
+			_:
+				if removed_mail_ids.has(file_id):
+					continue
+				if introduced_mail_ids.has(file_id):
+					continue
+				introduced_mail_ids[file_id] = true
+				_update_day_label_from_special_mail(file_id)
 
 	_sync_read_all_emails_global_from_mailbox()
 
@@ -1348,6 +1417,83 @@ func _has_mail_entry(file_id: String) -> bool:
 		if str(entry.get("id", "")).strip_edges() == file_id:
 			return true
 	return false
+
+
+func _update_day_label_from_special_mail(file_id: String) -> void:
+	for entry in mail_entries:
+		if str(entry.get("id", "")).strip_edges() != file_id:
+			continue
+
+		if str(entry.get("label", "")).strip_edges() != "第x封":
+			return
+
+		var mail_day = int(entry.get("day", -1))
+		if mail_day < 0:
+			return
+
+		day_label = "第 %d 天" % mail_day
+		current_day_number = mail_day
+		return
+
+
+func _parse_file_trigger_action(trigger_text: String) -> Dictionary:
+	var normalized = trigger_text.strip_edges()
+	if normalized == "":
+		return {"action": "introduce", "file_id": ""}
+
+	if normalized.begins_with("-"):
+		return {"action": "remove", "file_id": normalized.substr(1).strip_edges()}
+	if normalized.begins_with("~"):
+		return {"action": "corrupt", "file_id": normalized.substr(1).strip_edges()}
+
+	return {"action": "introduce", "file_id": normalized}
+
+
+func _set_mail_body_override(file_id: String, body_text: String) -> void:
+	var normalized_id = file_id.strip_edges()
+	if normalized_id == "":
+		return
+
+	mail_body_overrides[normalized_id] = body_text
+	for index in mail_entries.size():
+		if str(mail_entries[index].get("id", "")).strip_edges() != normalized_id:
+			continue
+		mail_entries[index]["body"] = body_text
+		return
+
+
+func _restore_mail_entry_body(file_id: String) -> void:
+	var normalized_id = file_id.strip_edges()
+	if normalized_id == "":
+		return
+
+	for index in mail_entries.size():
+		if str(mail_entries[index].get("id", "")).strip_edges() != normalized_id:
+			continue
+		var rebuilt_entry = _build_mail_entry_from_file(normalized_id)
+		if rebuilt_entry.is_empty():
+			return
+		mail_entries[index]["body"] = str(rebuilt_entry.get("body", "")).strip_edges()
+		return
+
+
+func _restore_saved_mail_body_overrides(saved_overrides) -> Dictionary:
+	var restored: Dictionary = {}
+	if not (saved_overrides is Dictionary):
+		return restored
+
+	for mail_id in saved_overrides.keys():
+		var normalized_mail_id = str(mail_id).strip_edges()
+		if normalized_mail_id == "" or not _has_mail_entry(normalized_mail_id):
+			continue
+		restored[normalized_mail_id] = str(saved_overrides[mail_id])
+
+	return restored
+
+
+func _apply_saved_mail_body_overrides() -> void:
+	for mail_id in mail_body_overrides.keys():
+		_set_mail_body_override(str(mail_id).strip_edges(), str(mail_body_overrides[mail_id]))
 
 
 func _sync_read_all_emails_global_from_mailbox() -> void:

@@ -59,9 +59,9 @@ text = "[ 第 4 天 ]"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="WeatherLabel" type="Label" parent="CanvasLayer/MainLayout/Header"]
+[node name="SanLabel" type="Label" parent="CanvasLayer/MainLayout/Header"]
 layout_mode = 2
-text = "[ 天气：晴朗 ]"
+text = "[ SAN：-- ]"
 
 [node name="DividerTop" type="HSeparator" parent="CanvasLayer/MainLayout"]
 layout_mode = 2

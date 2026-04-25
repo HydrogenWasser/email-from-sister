@@ -72,8 +72,8 @@
       "title": "开始",
       "body": "我的妹妹死了。\n\n是坐在家里玩手机，外头晴天万里，就这么好端端给雷劈死的。\n\n家里人初听消息还以为是蹩脚笑话，敷衍着说那可难办了，然后该干家务的干家务，该看抖音的看抖音。\n\n直到扫地机器人把烧焦成炭的半截身子推出来，有心脏病的外婆用尖叫解释了我没撒谎。\n\n\n",
       "position": {
-        "x": 32,
-        "y": 1282
+        "x": 25.913043478260875,
+        "y": 1223.7391304347827
       },
       "tags": [
         "Start",
@@ -167,8 +167,8 @@
       "title": "妹妹的房间",
       "body": "妹妹的遗物基本上都已经收拾完了。\n\n现在也没理由再进她的房间了。\n\n只会徒增悲伤罢了。",
       "position": {
-        "x": 2776,
-        "y": 1222
+        "x": 2845.8547635000446,
+        "y": 1212.7738991603715
       },
       "tags": [],
       "colorToken": "sand",
@@ -235,8 +235,8 @@
       "title": "New Node",
       "body": "今天是妹妹死后的第四天。\n\n我已经放弃了向其他人解释这件事。\n\n",
       "position": {
-        "x": 1992,
-        "y": 1666
+        "x": 2003.862129650951,
+        "y": 1812.299599028395
       },
       "tags": [
         "第4天"
@@ -291,8 +291,8 @@
       "title": "第七天开始-正常",
       "body": "葬礼结束的第七天。\n\n",
       "position": {
-        "x": 5520,
-        "y": 1576
+        "x": 5514.727942377355,
+        "y": 1601.0422737075633
       },
       "tags": [
         "第7天"
@@ -415,8 +415,8 @@
       "title": "New Node",
       "body": "我重新打开了扫地机器人的开关。",
       "position": {
-        "x": 14144,
-        "y": 825
+        "x": 14191.945670469442,
+        "y": 985.8177696995848
       },
       "tags": [],
       "colorToken": "sand",
@@ -499,10 +499,10 @@
     {
       "id": "node_mo07zef5_2607jd",
       "title": "New Node",
-      "body": "我毫不疑心地看完这些邮件。\n\n我相信这是妹妹所想的。\n\n但是，这不太可能是妹妹发来的。\n\n对吧？",
+      "body": "我毫不疑心地看完这些邮件。\n\n我相信这是妹妹所想的。",
       "position": {
-        "x": 7088,
-        "y": 1438
+        "x": 7114.667991181347,
+        "y": 1357.6821271703457
       },
       "tags": [],
       "colorToken": "sand",
@@ -515,16 +515,6 @@
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo08wc4c_pc7kqr"
-          }
-        },
-        {
-          "id": "choice_mo0908z2_w82rml",
-          "text": "结束这一天",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo07y69g_y0fb8b"
           }
         }
       ],
@@ -616,7 +606,7 @@
             "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
-            "value": false
+            "value": true
           },
           "effects": [],
           "route": {
@@ -680,10 +670,10 @@
     {
       "id": "node_mo08srjv_0liups",
       "title": "给了糖-没有吃水果-睡醒",
-      "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n\n实话说,还有点害怕。\n\n",
+      "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n\n\n",
       "position": {
-        "x": 11400,
-        "y": 1317
+        "x": 10985.78925583564,
+        "y": 1523.53167299054
       },
       "tags": [],
       "colorToken": "sand",
@@ -700,7 +690,7 @@
           "effects": [],
           "route": {
             "mode": "direct",
-            "targetNodeId": "node_mo0adjbe_wwmpea"
+            "targetNodeId": "node_mod4eoms_07pq8y"
           }
         }
       ],
@@ -717,10 +707,10 @@
     {
       "id": "node_mo08wc4c_pc7kqr",
       "title": "New Node",
-      "body": "我终于还是下楼了。\n\n站在水果店前，盯着新鲜的苹果枣子，发呆很久，还是没有食欲。\n\n我根本不喜欢吃水果。\n\n",
+      "body": "我站在水果店前，盯着新鲜的苹果枣子，发呆很久，还是没有食欲。\n\n",
       "position": {
-        "x": 7480,
-        "y": 1172
+        "x": 7471.304347826087,
+        "y": 1201.5652173913043
       },
       "tags": [],
       "colorToken": "sand",
@@ -759,8 +749,8 @@
       "title": "New Node",
       "body": "回家的路上，我路过了那个小超市。\n\n外婆是爱吃糖的。\n\n\n",
       "position": {
-        "x": 7872,
-        "y": 1181
+        "x": 7892.86956521739,
+        "y": 1223.608695652174
       },
       "tags": [],
       "colorToken": "sand",
@@ -799,8 +789,8 @@
       "title": "New Node",
       "body": "回到家中，已经到了中午了。\n\n家里还是那个样子。\n\n虽然外婆在家里，但是对我来说，这个家总是空空荡荡的。\n\n还有些冷。\n\n尽管外面是个晴天。",
       "position": {
-        "x": 8264,
-        "y": 1153
+        "x": 8308.748529147952,
+        "y": 1221.8438909968465
       },
       "tags": [],
       "colorToken": "sand",
@@ -883,7 +873,13 @@
             "operator": "eq",
             "value": true
           },
-          "effects": [],
+          "effects": [
+            {
+              "globalId": "global_mo0ac9ac_7y0d9n",
+              "operator": "set",
+              "value": true
+            }
+          ],
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo0987x7_9yrdw4"
@@ -907,8 +903,8 @@
       "title": "New Node",
       "body": "我去洗了一个冬枣。\n\n青色的，很小一个。",
       "position": {
-        "x": 9440,
-        "y": 1171
+        "x": 9456.012159441922,
+        "y": 1164.409927971694
       },
       "tags": [],
       "colorToken": "sand",
@@ -931,8 +927,8 @@
       "title": "New Node",
       "body": "似乎已经是下午了。",
       "position": {
-        "x": 10616,
-        "y": 1161
+        "x": 10425.553296759177,
+        "y": 1133.0764116762034
       },
       "tags": [],
       "colorToken": "sand",
@@ -946,13 +942,7 @@
             "operator": "eq",
             "value": true
           },
-          "effects": [
-            {
-              "globalId": "global_mo07mpww_l7avop",
-              "operator": "set",
-              "value": true
-            }
-          ],
+          "effects": [],
           "route": {
             "mode": "conditional",
             "branches": [
@@ -980,8 +970,19 @@
           },
           "effects": [],
           "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo3006om_786ro3"
+            "mode": "conditional",
+            "branches": [
+              {
+                "condition": {
+                  "type": "atomic",
+                  "globalId": "global_mo0ac9ac_7y0d9n",
+                  "operator": "eq",
+                  "value": true
+                },
+                "targetNodeId": "node_modqt30a_x6sup0"
+              }
+            ],
+            "fallbackTargetNodeId": "node_mod4d6uz_6qwach"
           }
         }
       ],
@@ -992,8 +993,8 @@
       "title": "New Node",
       "body": "我昏昏沉沉的睡去",
       "position": {
-        "x": 10224,
-        "y": 1201
+        "x": 10124.410246618998,
+        "y": 910.9161447600643
       },
       "tags": [],
       "colorToken": "sand",
@@ -1064,8 +1065,8 @@
       "title": "New Node",
       "body": "我想起来了，今天的第一封邮件里，妹妹好像是有说过的要吃点水果的。",
       "position": {
-        "x": 11792,
-        "y": 1266
+        "x": 11707.092534437223,
+        "y": 1272.8843890996845
       },
       "tags": [],
       "colorToken": "sand",
@@ -1083,27 +1084,6 @@
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo0acwqe_u7h6ty"
-          }
-        },
-        {
-          "id": "choice_mo1krsru_tt0fys",
-          "text": "不打算吃水果",
-          "visibilityCondition": {
-            "type": "atomic",
-            "globalId": "global_mo0954rp_6h8rzx",
-            "operator": "eq",
-            "value": true
-          },
-          "effects": [
-            {
-              "globalId": "global_mo07euyf_naatma",
-              "operator": "change",
-              "value": -1
-            }
-          ],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1kq81m_pxtb9v"
           }
         },
         {
@@ -1147,8 +1127,19 @@
           "visibilityCondition": null,
           "effects": [],
           "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo07y69g_y0fb8b"
+            "mode": "conditional",
+            "branches": [
+              {
+                "condition": {
+                  "type": "atomic",
+                  "globalId": "global_mo07euyf_naatma",
+                  "operator": "lte",
+                  "value": 0
+                },
+                "targetNodeId": "node_modqjgyb_qfdsr1"
+              }
+            ],
+            "fallbackTargetNodeId": "node_mo07y69g_y0fb8b"
           }
         }
       ],
@@ -1344,8 +1335,8 @@
       "title": "New Node",
       "body": "对于这种安慰，我没有什么兴趣。\n\n事实上，我也不需要别人的安慰。\n\n",
       "position": {
-        "x": 21200,
-        "y": 1056
+        "x": 21162.135859951733,
+        "y": 1321.0489803378596
       },
       "tags": [],
       "colorToken": "sand",
@@ -1466,12 +1457,7 @@
         {
           "id": "choice_mo0ayhwe_ah0prm",
           "text": "给妹妹送衣服",
-          "visibilityCondition": {
-            "type": "atomic",
-            "globalId": "global_mo07mpww_l7avop",
-            "operator": "eq",
-            "value": false
-          },
+          "visibilityCondition": null,
           "effects": [],
           "route": {
             "mode": "direct",
@@ -1505,14 +1491,13 @@
         {
           "id": "choice_mo0aymdl_0bn7jg",
           "text": "继续",
-          "visibilityCondition": null,
-          "effects": [
-            {
-              "globalId": "global_mo07mpww_l7avop",
-              "operator": "set",
-              "value": false
-            }
-          ],
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo0ayd3o_4ylfn3"
@@ -1572,7 +1557,7 @@
             "type": "atomic",
             "globalId": "global_mo07mpww_l7avop",
             "operator": "eq",
-            "value": false
+            "value": true
           },
           "effects": [
             {
@@ -1679,7 +1664,7 @@
       "title": "New Node",
       "body": "\n屏幕上的小怪乱叫着逃跑，头顶着只剩不到5%的血条。\n\n\n",
       "position": {
-        "x": 22376,
+        "x": 22374.85260181672,
         "y": 620
       },
       "tags": [],
@@ -1689,7 +1674,13 @@
           "id": "choice_mo0b7w3e_5zahxc",
           "text": "找口红",
           "visibilityCondition": null,
-          "effects": [],
+          "effects": [
+            {
+              "globalId": "global_mo0bo3z2_xn3at1",
+              "operator": "set",
+              "value": true
+            }
+          ],
           "route": {
             "mode": "direct",
             "targetNodeId": "node_mo0b7sbz_ntwyxz"
@@ -1996,8 +1987,8 @@
       "title": "New Node",
       "body": "话说回来，前面好像堵车了。\n\n我口袋里的手机又在震动。",
       "position": {
-        "x": 25904,
-        "y": 228
+        "x": 25907.44219454984,
+        "y": 226.85260181671924
       },
       "tags": [],
       "colorToken": "sand",
@@ -2005,7 +1996,12 @@
         {
           "id": "choice_moa9p66e_b6k0zp",
           "text": "继续",
-          "visibilityCondition": null,
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
           "effects": [],
           "route": {
             "mode": "direct",
@@ -2135,7 +2131,9 @@
           }
         }
       ],
-      "fileTriggers": []
+      "fileTriggers": [
+        "-[第30天]-[第2封]-[妹妹].txt"
+      ]
     },
     {
       "id": "node_mo0c2egm_7spc3l",
@@ -2166,7 +2164,7 @@
       "title": "New Node",
       "body": "她的下一个指令是什么呢?",
       "position": {
-        "x": 27864,
+        "x": 27872.031787282966,
         "y": 106
       },
       "tags": [],
@@ -2577,8 +2575,8 @@
       "title": "New Node",
       "body": "葬礼没有很悲伤。\n\n有重度抑郁的妹妹早在两年前写好遗书,说要在葬礼上俗嗨歌。主持人若是一定要致辞说废话惹父母伤心,就得先讲几个地狱笑话。\n\n来的人要互相分享零食和趣事，谁敢哭她就放弃投胎专去吓谁。\n\n当然不可能完全按照她说的来，这么个性子被雷劈了也是活该。\n\n",
       "position": {
-        "x": 424,
-        "y": 1296
+        "x": 465.7391304347826,
+        "y": 1236.8695652173913
       },
       "tags": [],
       "colorToken": "sand",
@@ -2625,8 +2623,8 @@
       "title": "New Node",
       "body": "但是我对着她的衣服发了三天的呆，打了三天腹稿，也没想好到底怎么去说明这件事。\n\n她是凭空给雷劈死的。",
       "position": {
-        "x": 1208,
-        "y": 1314
+        "x": 1200.1739130434783,
+        "y": 1300.0869565217392
       },
       "tags": [],
       "colorToken": "sand",
@@ -2728,7 +2726,7 @@
     {
       "id": "node_mo1fgqua_ua6xqp",
       "title": "New Node",
-      "body": "邮件中没有出现什么“哥哥你看得见吧，我恨你”、“是那个女人害死了我”之类的狂躁女鬼发言。\n\n也没有出现“”这是灵异主题综艺的恶作剧啦吓到了吗“的字眼。\n\n虽然不明白邮件来源，但这的确是妹妹的口吻和习惯。\n\n",
+      "body": "邮件中没有出现什么\"哥哥你看得见吧，我恨你\"、\"是那个女人害死了我\"之类的狂躁女鬼发言。\n\n也没有出现\"这是灵异主题综艺的恶作剧啦吓到了吗\"的字眼。\n\n虽然不明白邮件来源，但这的确是妹妹的口吻和习惯。\n\n",
       "position": {
         "x": 3952,
         "y": 1662
@@ -2896,8 +2894,8 @@
       "title": "New Node",
       "body": "我独自呆在房间里，坐在椅子上，看向窗外。\n\n天气很晴朗。",
       "position": {
-        "x": 5128,
-        "y": 1290
+        "x": 5028.176358054573,
+        "y": 1347.3699091640387
       },
       "tags": [],
       "colorToken": "sand",
@@ -3098,8 +3096,8 @@
       "title": "New Node",
       "body": "导师又给我发了消息，问我怎么没去见她。\n\n明明是她迟到了。\n\n而且现在外面热死了，大下午的，更不想出门了。",
       "position": {
-        "x": 21200,
-        "y": 506
+        "x": 21204.589592733122,
+        "y": 332.74287432460267
       },
       "tags": [],
       "colorToken": "sand",
@@ -3196,8 +3194,8 @@
       "title": "New Node",
       "body": "......如果公园真的已经近乎荒废,我倒是不想一个人前去。\n\n叫上了几个兄弟，说是陪我喝酒，一人带了一瓶哈尔滨冰啤，打着公交去公园。\n\n\n",
       "position": {
-        "x": 25512,
-        "y": 229
+        "x": 25571.664705530602,
+        "y": 292.1069000804427
       },
       "tags": [],
       "colorToken": "sand",
@@ -3368,47 +3366,12 @@
       "fileTriggers": []
     },
     {
-      "id": "node_mo1kq81m_pxtb9v",
-      "title": "给了糖-拒绝吃水果",
-      "body": "我又不喜欢吃水果。\n\n干嘛要吃水果。",
-      "position": {
-        "x": 12184,
-        "y": 859
-      },
-      "tags": [],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo1kt26l_zydpni",
-          "text": "结束这一天",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "conditional",
-            "branches": [
-              {
-                "condition": {
-                  "type": "atomic",
-                  "globalId": "global_mo07euyf_naatma",
-                  "operator": "lte",
-                  "value": 0
-                },
-                "targetNodeId": "node_moa7wxnp_j1xg7j"
-              }
-            ],
-            "fallbackTargetNodeId": "node_mo07y69g_y0fb8b"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
       "id": "node_mo3006om_786ro3",
-      "title": "没有给糖-没有吃水果-睡醒",
-      "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n\n实话说,还有点害怕。\n\n",
+      "title": "",
+      "body": "\n实话说,还有点害怕。\n\n",
       "position": {
-        "x": 11008,
-        "y": 830
+        "x": 11195.160317946085,
+        "y": 433.82552267083236
       },
       "tags": [],
       "colorToken": "sand",
@@ -3450,6 +3413,15 @@
               {
                 "condition": {
                   "type": "atomic",
+                  "globalId": "global_mo0ac9ac_7y0d9n",
+                  "operator": "eq",
+                  "value": true
+                },
+                "targetNodeId": "node_modqblv4_r5t0f2"
+              },
+              {
+                "condition": {
+                  "type": "atomic",
                   "globalId": "global_mo0954rp_6h8rzx",
                   "operator": "eq",
                   "value": true
@@ -3461,27 +3433,15 @@
           }
         }
       ],
-      "fileTriggers": [
-        "[第7天]-[第2封]-[妹妹].txt",
-        "[第7天]-[第3封]-[妹妹].txt",
-        "[第7天]-[第4封]-[妹妹].txt",
-        "[第7天]-[第5封]-[妹妹].txt",
-        "[第7天]-[第6封]-[妹妹].txt",
-        "[第7天]-[第7封]-[妹妹].txt",
-        "[第7天]-[第8封]-[妹妹].txt",
-        "[第7天]-[第9封]-[妹妹].txt",
-        "[第7天]-[第10封]-[妹妹].txt",
-        "[第7天]-[第11封]-[妹妹].txt",
-        "[第7天]-[第12封]-[妹妹].txt"
-      ]
+      "fileTriggers": []
     },
     {
       "id": "node_mo300dri_0x8shv",
       "title": "New Node",
       "body": "虽然买了糖，但是之前忘记给外婆了，不过好在想起来这件事了。\n\n她很憔悴地挤出了微笑，然后开始提妹妹生前是多么孝顺多么可爱的孩子。\n\n我听了半天，伤心和耐心的幅度呈反比，一个飙升一个狂跌。",
       "position": {
-        "x": 11400,
-        "y": 990
+        "x": 11396.00452746088,
+        "y": 956.038483417479
       },
       "tags": [],
       "colorToken": "sand",
@@ -3504,8 +3464,8 @@
       "title": "没买糖-没买水果",
       "body": "可是我并没有买水果和糖。\n\n事实上，我根本不喜欢吃水果。\n\n再说了，外婆年纪大了以后也不爱吃糖了吧。",
       "position": {
-        "x": 12184,
-        "y": 603
+        "x": 12115.56085694393,
+        "y": 694.765851228137
       },
       "tags": [],
       "colorToken": "sand",
@@ -3550,10 +3510,10 @@
     {
       "id": "node_mo33td0a_uh29wh",
       "title": "New Node",
-      "body": "还要吃水果对吧。\n\n今天的第一封邮件里，妹妹也说了她要吃点水果。",
+      "body": "今天的第一封邮件里，妹妹也说了她要吃点水果。",
       "position": {
-        "x": 11792,
-        "y": 988
+        "x": 11739.99201135239,
+        "y": 873.223013573672
       },
       "tags": [],
       "colorToken": "sand",
@@ -3561,7 +3521,12 @@
         {
           "id": "choice_mo33ucxx_gpd01a",
           "text": "去吃水果",
-          "visibilityCondition": null,
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo0954rp_6h8rzx",
+            "operator": "eq",
+            "value": true
+          },
           "effects": [],
           "route": {
             "mode": "direct",
@@ -3569,39 +3534,18 @@
           }
         },
         {
-          "id": "choice_mo33uef7_bls5cc",
-          "text": "不打算吃水果",
-          "visibilityCondition": null,
+          "id": "choice_mod59lvv_k0r7aq",
+          "text": "去吃水果",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo0954rp_6h8rzx",
+            "operator": "eq",
+            "value": false
+          },
           "effects": [],
           "route": {
             "mode": "direct",
-            "targetNodeId": "node_mo1kq81m_pxtb9v"
-          }
-        }
-      ],
-      "fileTriggers": []
-    },
-    {
-      "id": "node_mo33wqcb_tol1zj",
-      "title": "New Node",
-      "body": "已经是妹妹死后的第9天了。\n\n",
-      "position": {
-        "x": 12968,
-        "y": 569
-      },
-      "tags": [
-        "第9天"
-      ],
-      "colorToken": "sand",
-      "choices": [
-        {
-          "id": "choice_mo33wy4r_zncfm1",
-          "text": "继续",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo1gpodg_brhwnz"
+            "targetNodeId": "node_mo0ahc25_gf5jyb"
           }
         }
       ],
@@ -3612,8 +3556,8 @@
       "title": "New Node",
       "body": "已经第30天了。\n\n其实我已经逐渐对手机里时不时收到的来自妹妹的邮件感到厌烦。\n",
       "position": {
-        "x": 25120,
-        "y": 32
+        "x": 25437.350497320498,
+        "y": -167.55825126845497
       },
       "tags": [],
       "colorToken": "sand",
@@ -3646,7 +3590,9 @@
         "x": 5520,
         "y": 1316
       },
-      "tags": [],
+      "tags": [
+        "第7天"
+      ],
       "colorToken": "sand",
       "choices": [
         {
@@ -3695,12 +3641,14 @@
     {
       "id": "node_moa5ui8j_orsxxg",
       "title": "第七天开始-未关闭扫地机器人",
-      "body": "",
+      "body": "葬礼结束的第七天。\n",
       "position": {
         "x": 5128,
         "y": 1950
       },
-      "tags": [],
+      "tags": [
+        "第7天"
+      ],
       "colorToken": "sand",
       "choices": [
         {
@@ -3867,16 +3815,25 @@
     {
       "id": "node_moa72cdu_ze4zph",
       "title": "第七天-没有关闭扫地机器人-死亡",
-      "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声怎么这么大？大的仿佛就是在耳边炸响的。",
+      "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声真大。\n\n大的仿佛就是在耳边炸响的。",
       "position": {
-        "x": 7088,
-        "y": 1947
+        "x": 7277.794074415214,
+        "y": 1940.4099279716943
       },
-      "tags": [
-        "End"
-      ],
+      "tags": [],
       "colorToken": "sand",
-      "choices": [],
+      "choices": [
+        {
+          "id": "choice_mobmx3kg_vij1lc",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mobmzcih_px7tje"
+          }
+        }
+      ],
       "fileTriggers": []
     },
     {
@@ -3884,8 +3841,8 @@
       "title": "第七天-没买糖-买了水果没吃",
       "body": "我没有买糖，再说了，外婆年纪大了以后也不爱吃糖了吧。\n\n",
       "position": {
-        "x": 11792,
-        "y": 323
+        "x": 11613.202603874375,
+        "y": 312.86278860369896
       },
       "tags": [],
       "colorToken": "sand",
@@ -3905,16 +3862,6 @@
             "mode": "direct",
             "targetNodeId": "node_moa8956f_5xwonq"
           }
-        },
-        {
-          "id": "choice_moa7w9x3_rn0onl",
-          "text": "不打算吃水果",
-          "visibilityCondition": null,
-          "effects": [],
-          "route": {
-            "mode": "direct",
-            "targetNodeId": "node_moa7wxnp_j1xg7j"
-          }
         }
       ],
       "fileTriggers": []
@@ -3924,20 +3871,29 @@
       "title": "第七天-没有买糖-没有吃水果-死亡",
       "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声怎么这么大？大的仿佛就是在耳边炸响的。",
       "position": {
-        "x": 12576,
-        "y": 550
+        "x": 12575.13043478261,
+        "y": 549.1304347826087
       },
-      "tags": [
-        "End"
-      ],
+      "tags": [],
       "colorToken": "sand",
-      "choices": [],
+      "choices": [
+        {
+          "id": "choice_mobn9b6m_uwj0kr",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mod5ed4q_djatyh"
+          }
+        }
+      ],
       "fileTriggers": []
     },
     {
       "id": "node_moa7zdwp_i7edc7",
       "title": "New Node",
-      "body": "妹妹的邮件还躺在收件箱里。\n\n尽管原因不明，不过在这之后,等待妹妹邮件的心情确实变化了。",
+      "body": "妹妹发来的邮件还躺在收件箱里。\n\n尽管原因不明，不过在这之后,等待妹妹邮件的心情确实变化了。",
       "position": {
         "x": 12576,
         "y": 265
@@ -3951,8 +3907,19 @@
           "visibilityCondition": null,
           "effects": [],
           "route": {
-            "mode": "direct",
-            "targetNodeId": "node_mo07y69g_y0fb8b"
+            "mode": "conditional",
+            "branches": [
+              {
+                "condition": {
+                  "type": "atomic",
+                  "globalId": "global_mo07euyf_naatma",
+                  "operator": "lte",
+                  "value": 0
+                },
+                "targetNodeId": "node_modqjgyb_qfdsr1"
+              }
+            ],
+            "fallbackTargetNodeId": "node_mo07y69g_y0fb8b"
           }
         }
       ],
@@ -3961,10 +3928,10 @@
     {
       "id": "node_moa8956f_5xwonq",
       "title": "New Node",
-      "body": "于是我强撑着睡意爬起来,去洗了一个枣。\n\n青色的。\n\n巴掌大。\n\n洗枣子期间手机还在口袋里震动,直到我把枣子塞进嘴里咬下。\n\n",
+      "body": "我强撑着睡意爬起来,去洗了一个枣。\n\n青色的。\n\n巴掌大。\n\n洗枣子期间手机还在口袋里震动,直到我把枣子塞进嘴里咬下。\n\n",
       "position": {
-        "x": 12184,
-        "y": 265
+        "x": 12118.074703104518,
+        "y": 280.9818901564805
       },
       "tags": [],
       "colorToken": "sand",
@@ -3987,14 +3954,23 @@
       "title": "第9天-死亡",
       "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声怎么这么大？大的仿佛就是在耳边炸响的。",
       "position": {
-        "x": 14928,
-        "y": 454
+        "x": 14915.26830513166,
+        "y": 365.6930348206986
       },
-      "tags": [
-        "End"
-      ],
+      "tags": [],
       "colorToken": "sand",
-      "choices": [],
+      "choices": [
+        {
+          "id": "choice_mobn8kbk_nc8maj",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mod5eq0a_1qng13"
+          }
+        }
+      ],
       "fileTriggers": []
     },
     {
@@ -4026,14 +4002,23 @@
       "title": "第12天-死亡",
       "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声怎么这么大？大的仿佛就是在耳边炸响的。",
       "position": {
-        "x": 21592,
-        "y": 935
+        "x": 21594.275453218303,
+        "y": 1101.6543900267286
       },
-      "tags": [
-        "End"
-      ],
+      "tags": [],
       "colorToken": "sand",
-      "choices": [],
+      "choices": [
+        {
+          "id": "choice_mobn9w1k_8z2qyq",
+          "text": "End",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mod5f3n0_0kh5va"
+          }
+        }
+      ],
       "fileTriggers": []
     },
     {
@@ -4065,14 +4050,25 @@
       "title": "第15天-死亡",
       "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声怎么这么大？大的仿佛就是在耳边炸响的。",
       "position": {
-        "x": 24671.6664599025,
-        "y": -6.443652756728113
+        "x": 24506.853217663793,
+        "y": -73.36781778699014
       },
       "tags": [
         "End"
       ],
       "colorToken": "sand",
-      "choices": [],
+      "choices": [
+        {
+          "id": "choice_mobnaeid_sw2549",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mod5fovn_v5apwp"
+          }
+        }
+      ],
       "fileTriggers": []
     },
     {
@@ -4200,6 +4196,431 @@
         }
       ],
       "fileTriggers": []
+    },
+    {
+      "id": "node_mobmzcih_px7tje",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 7779.927057135505,
+        "y": 1952.5761277865968
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mobnfi3d_xflfb9",
+          "text": "End",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mobnfe5w_iuyl8u"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第7天]-[第x封]-[妹妹].txt"
+      ]
+    },
+    {
+      "id": "node_mobn8djt_w7o10a",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 15678.925445675792,
+        "y": 439.1706049173057
+      },
+      "tags": [
+        "End"
+      ],
+      "colorToken": "sand",
+      "choices": [],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_mobn9607_fz25bg",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 13019.091923451791,
+        "y": 927.8493161659721
+      },
+      "tags": [
+        "End"
+      ],
+      "colorToken": "sand",
+      "choices": [],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_mobn9rpz_ok5u5o",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 22231.241233656077,
+        "y": 1113.0901550172005
+      },
+      "tags": [
+        "End"
+      ],
+      "colorToken": "sand",
+      "choices": [],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_mobnaaq0_yia4ee",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 24870.0282966305,
+        "y": -135.61856142087018
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_mobnfe5w_iuyl8u",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 8149.534825896506,
+        "y": 1960.823539018841
+      },
+      "tags": [
+        "End"
+      ],
+      "colorToken": "sand",
+      "choices": [],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_mod4d6uz_6qwach",
+      "title": "没有给糖-没有吃水果-睡醒",
+      "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n",
+      "position": {
+        "x": 10819.141743359933,
+        "y": 773.3235265836308
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mod4drvn_c2l8wu",
+          "text": "继续",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mo3006om_786ro3"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第7天]-[第2封]-[妹妹].txt",
+        "[第7天]-[第3封]-[妹妹].txt",
+        "[第7天]-[第4封]-[妹妹].txt",
+        "[第7天]-[第5封]-[妹妹].txt",
+        "[第7天]-[第6封]-[妹妹].txt",
+        "[第7天]-[第7封]-[妹妹].txt",
+        "[第7天]-[第8封]-[妹妹].txt",
+        "[第7天]-[第9封]-[妹妹].txt",
+        "[第7天]-[第10封]-[妹妹].txt",
+        "[第7天]-[第11封]-[妹妹].txt",
+        "[第7天]-[第12封]-[妹妹].txt"
+      ]
+    },
+    {
+      "id": "node_mod4eoms_07pq8y",
+      "title": "New Node",
+      "body": "实话说,还有点害怕。\n",
+      "position": {
+        "x": 11280.311989421458,
+        "y": 1583.6588221224017
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mod4f2l0_9md264",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mo0adjbe_wwmpea"
+          }
+        }
+      ],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_mod5ed4q_djatyh",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 12651.98528575214,
+        "y": 977.7838137429857
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mod5ed4q_74oxhm",
+          "text": "End",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mobn9607_fz25bg"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第7天]-[第x封]-[妹妹].txt"
+      ]
+    },
+    {
+      "id": "node_mod5eq0a_1qng13",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 15345.361198344168,
+        "y": 349.9884617684536
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mod5eq0a_8uybr0",
+          "text": "End",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mobn8djt_w7o10a"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第10天]-[第x封]-[妹妹].txt"
+      ]
+    },
+    {
+      "id": "node_mod5f3n0_0kh5va",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 21836.00792305654,
+        "y": 1335.6774184123087
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mod5f3n0_hrhit7",
+          "text": "End",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mobn9rpz_ok5u5o"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第12天]-[第x封]-[妹妹].txt"
+      ]
+    },
+    {
+      "id": "node_mod5fovn_v5apwp",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 25029,
+        "y": 124
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_mod5fovn_gsk6bl",
+          "text": "End",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mobnaaq0_yia4ee"
+          }
+        }
+      ],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_modqblv4_r5t0f2",
+      "title": "第七天-没买糖-吃了水果",
+      "body": "我没有买糖，再说了，外婆年纪大了以后也不爱吃糖了。",
+      "position": {
+        "x": 11612.564800744763,
+        "y": 80.44117173110348
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_modqdyc0_23j1yy",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [
+            {
+              "globalId": "global_mo07euyf_naatma",
+              "operator": "change",
+              "value": -1
+            }
+          ],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_moa7zdwp_i7edc7"
+          }
+        }
+      ],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_modqjgyb_qfdsr1",
+      "title": "第七天-SAN归零-死亡",
+      "body": "今晚的雨下的真大。\n\n狂风吹的窗户不断发出振动声。\n\n外面的雷声怎么这么大？大的仿佛就是在耳边炸响的。",
+      "position": {
+        "x": 13489.976324791198,
+        "y": 1355.4794080713043
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_modqjgyb_ngzyyx",
+          "text": "继续",
+          "visibilityCondition": null,
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_modqkdb0_o13du2"
+          }
+        }
+      ],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_modqkdb0_o13du2",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 13858.523081014995,
+        "y": 1317.3990651784998
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_modqkdb0_06apvr",
+          "text": "End",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_modqkgur_0yiaap"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第8天]-[第x封]-[妹妹].txt"
+      ]
+    },
+    {
+      "id": "node_modqkgur_0yiaap",
+      "title": "New Node",
+      "body": "",
+      "position": {
+        "x": 14136.352258939443,
+        "y": 1384.676243762147
+      },
+      "tags": [
+        "End"
+      ],
+      "colorToken": "sand",
+      "choices": [],
+      "fileTriggers": []
+    },
+    {
+      "id": "node_modqt30a_x6sup0",
+      "title": "没有给糖-吃水果-睡醒",
+      "body": "把我的午睡敲断的是震动的手机,点开,看见了一百个未读邮件。\n\n原本睡眼惺忪里带着一丝暴躁的我有点茫然了。\n",
+      "position": {
+        "x": 10759.695652173912,
+        "y": 462.82608695652186
+      },
+      "tags": [],
+      "colorToken": "sand",
+      "choices": [
+        {
+          "id": "choice_modqt30a_h3kuhz",
+          "text": "继续",
+          "visibilityCondition": {
+            "type": "atomic",
+            "globalId": "global_mo07mpww_l7avop",
+            "operator": "eq",
+            "value": true
+          },
+          "effects": [],
+          "route": {
+            "mode": "direct",
+            "targetNodeId": "node_mo3006om_786ro3"
+          }
+        }
+      ],
+      "fileTriggers": [
+        "[第7天]-[第9封]-[妹妹].txt",
+        "[第7天]-[第10封]-[妹妹].txt",
+        "[第7天]-[第11封]-[妹妹].txt",
+        "[第7天]-[第12封]-[妹妹].txt"
+      ]
     }
   ]
 }
