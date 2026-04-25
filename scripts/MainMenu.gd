@@ -9,6 +9,7 @@ const OPTION_NEW_GAME := "new_game"
 const OPTION_LOAD_GAME := "load_game"
 const OPTION_QUIT_GAME := "quit_game"
 const OPTION_BACK := "back"
+const MAX_VISIBLE_OPTIONS := 7
 
 @onready var title_label: Label = $CanvasLayer/MainLayout/Header/TitleLabel
 @onready var section_label: Label = $CanvasLayer/MainLayout/Header/SectionLabel
@@ -33,13 +34,13 @@ func _setup_ui_style() -> void:
 
 	for label in [title_label, section_label, prefix_label]:
 		label.add_theme_font_override("font", ui_font)
-		label.add_theme_font_size_override("font_size", 18)
+		label.add_theme_font_size_override("font_size", 20)
 		label.modulate = Color.WHITE
 
 	prefix_label.text = ""
 
 	for separator in [$CanvasLayer/MainLayout/DividerTop, $CanvasLayer/MainLayout/DividerMiddle]:
-		separator.modulate = Color(1, 1, 1, 0.75)
+		separator.modulate = Color(1, 1, 1, 0.88)
 
 	for rich_text in [content_text, options_text]:
 		rich_text.bbcode_enabled = false
@@ -49,11 +50,11 @@ func _setup_ui_style() -> void:
 		rich_text.add_theme_font_override("normal_font", ui_font)
 		rich_text.modulate = Color.WHITE
 
-	content_text.add_theme_font_size_override("normal_font_size", 20)
-	content_text.add_theme_constant_override("line_separation", 10)
+	content_text.add_theme_font_size_override("normal_font_size", 23)
+	content_text.add_theme_constant_override("line_separation", 8)
 	options_text.fit_content = true
-	options_text.add_theme_font_size_override("normal_font_size", 18)
-	options_text.add_theme_constant_override("line_separation", 8)
+	options_text.add_theme_font_size_override("normal_font_size", 21)
+	options_text.add_theme_constant_override("line_separation", 6)
 
 
 func _input(event: InputEvent) -> void:
@@ -140,7 +141,8 @@ func _get_current_body_text() -> String:
 
 func _build_option_lines(options: Array[Dictionary]) -> Array[String]:
 	var lines: Array[String] = []
-	for index in options.size():
+	var visible_range = _get_visible_option_range(options.size(), selected_index)
+	for index in range(int(visible_range.get("start", 0)), int(visible_range.get("end", 0))):
 		var option = options[index]
 		var line = "- %s" % str(option.get("label", "")).strip_edges()
 		if bool(option.get("disabled", false)):
@@ -202,3 +204,15 @@ func _wrap_index(index: int, size: int) -> int:
 	if wrapped < 0:
 		wrapped += size
 	return wrapped
+
+
+func _get_visible_option_range(total_count: int, selected_index_value: int) -> Dictionary:
+	if total_count <= 0:
+		return {"start": 0, "end": 0}
+	if total_count <= MAX_VISIBLE_OPTIONS:
+		return {"start": 0, "end": total_count}
+
+	var clamped_selected = clampi(selected_index_value, 0, total_count - 1)
+	var start_index = clamped_selected - int(MAX_VISIBLE_OPTIONS / 2)
+	start_index = clampi(start_index, 0, total_count - MAX_VISIBLE_OPTIONS)
+	return {"start": start_index, "end": start_index + MAX_VISIBLE_OPTIONS}

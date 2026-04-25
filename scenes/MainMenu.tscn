@@ -37,7 +37,7 @@ offset_right = -30.0
 offset_bottom = -25.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 13
 
 [node name="Header" type="HBoxContainer" parent="CanvasLayer/MainLayout" unique_id=1673815464]
 layout_mode = 2
@@ -59,7 +59,7 @@ text = "[ 主菜单 ]"
 layout_mode = 2
 
 [node name="ContentText" type="RichTextLabel" parent="CanvasLayer/MainLayout" unique_id=924963667]
-custom_minimum_size = Vector2(0, 420)
+custom_minimum_size = Vector2(0, 350)
 layout_mode = 2
 size_flags_vertical = 3
 

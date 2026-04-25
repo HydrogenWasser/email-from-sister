@@ -45,7 +45,7 @@ offset_right = -30.0
 offset_bottom = -25.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 13
 
 [node name="Header" type="HBoxContainer" parent="CanvasLayer/MainLayout"]
 layout_mode = 2
@@ -67,7 +67,7 @@ text = "[ SAN：-- ]"
 layout_mode = 2
 
 [node name="ContentText" type="RichTextLabel" parent="CanvasLayer/MainLayout"]
-custom_minimum_size = Vector2(0, 420)
+custom_minimum_size = Vector2(0, 350)
 layout_mode = 2
 size_flags_vertical = 3
 scroll_following = false
@@ -108,16 +108,16 @@ color = Color(0, 0, 0, 0.86)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 120.0
-offset_top = 100.0
-offset_right = -120.0
-offset_bottom = -120.0
+offset_left = 90.0
+offset_top = 70.0
+offset_right = -90.0
+offset_bottom = -80.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MenuLayout" type="VBoxContainer" parent="CanvasLayer/PauseOverlay/MenuFrame"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 13
 
 [node name="PauseTitle" type="Label" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
 layout_mode = 2
@@ -127,7 +127,7 @@ text = "[ 暂停 ]"
 layout_mode = 2
 
 [node name="PauseBodyText" type="RichTextLabel" parent="CanvasLayer/PauseOverlay/MenuFrame/MenuLayout"]
-custom_minimum_size = Vector2(0, 260)
+custom_minimum_size = Vector2(0, 220)
 layout_mode = 2
 size_flags_vertical = 3
 scroll_active = false

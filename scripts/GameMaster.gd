@@ -11,8 +11,10 @@ const PAUSE_MODE_ROOT := "root"
 const PAUSE_MODE_SAVE_SELECT := "save_select"
 const PAUSE_MODE_LOAD_SELECT := "load_select"
 const PAUSE_MODE_SAVE_CONFIRM := "save_confirm"
+const MAX_VISIBLE_OPTIONS := 7
 
 @export_range(1.0, 120.0, 1.0, "or_greater", "suffix:cps") var typewriter_characters_per_second: float = 35.0
+@export var show_san_debug_value: bool = false
 
 @onready var day_label: Label = $CanvasLayer/MainLayout/Header/DayLabel
 @onready var san_label: Label = $CanvasLayer/MainLayout/Header/SanLabel
@@ -70,7 +72,7 @@ func _setup_ui_style() -> void:
 
 	for label in [day_label, san_label, prefix_label, pause_title]:
 		label.add_theme_font_override("font", ui_font)
-		label.add_theme_font_size_override("font_size", 18)
+		label.add_theme_font_size_override("font_size", 20)
 		label.modulate = Color.WHITE
 
 	prefix_label.text = ""
@@ -81,12 +83,12 @@ func _setup_ui_style() -> void:
 		$CanvasLayer/PauseOverlay/MenuFrame/MenuLayout/PauseDividerTop,
 		$CanvasLayer/PauseOverlay/MenuFrame/MenuLayout/PauseDividerBottom
 	]:
-		separator.modulate = Color(1, 1, 1, 0.75)
+		separator.modulate = Color(1, 1, 1, 0.88)
 
-	_style_rich_text(content_text, ui_font, 20, 10)
-	_style_rich_text(options_text, ui_font, 18, 8)
-	_style_rich_text(pause_body_text, ui_font, 20, 10)
-	_style_rich_text(pause_options_text, ui_font, 18, 8)
+	_style_rich_text(content_text, ui_font, 23, 8)
+	_style_rich_text(options_text, ui_font, 21, 6)
+	_style_rich_text(pause_body_text, ui_font, 23, 8)
+	_style_rich_text(pause_options_text, ui_font, 21, 6)
 
 
 func _style_rich_text(label: RichTextLabel, ui_font: Font, font_size: int, line_separation: int) -> void:
@@ -119,7 +121,11 @@ func _render_current_page() -> void:
 
 func _render_page_chrome() -> void:
 	day_label.text = "[ %s ]" % logic_manager.get_day_label()
-	san_label.text = "[ SAN：%s ]" % logic_manager.get_san_debug_label()
+	san_label.visible = show_san_debug_value
+	if show_san_debug_value:
+		san_label.text = "[ SAN：%s ]" % logic_manager.get_san_debug_label()
+	else:
+		san_label.text = ""
 	_render_option_text()
 	_render_pause_menu()
 
@@ -329,7 +335,8 @@ func _render_pause_menu() -> void:
 	var lines: Array[String] = []
 	var options = _get_pause_options()
 	pause_selected_index = _wrap_index(pause_selected_index, options.size())
-	for index in options.size():
+	var visible_range = _get_visible_option_range(options.size(), pause_selected_index)
+	for index in range(int(visible_range.get("start", 0)), int(visible_range.get("end", 0))):
 		var option = options[index]
 		var line = "- %s" % str(option.get("label", ""))
 		if bool(option.get("disabled", false)):
@@ -399,7 +406,9 @@ func _render_option_text(option_entries: Array[Dictionary] = []) -> void:
 		option_entries = logic_manager.get_page_option_entries()
 
 	options_text.clear()
-	for index in option_entries.size():
+	var selected_index = _get_selected_entry_index(option_entries)
+	var visible_range = _get_visible_option_range(option_entries.size(), selected_index)
+	for index in range(int(visible_range.get("start", 0)), int(visible_range.get("end", 0))):
 		var entry = option_entries[index]
 		var line = _build_option_display_line(entry)
 		if bool(entry.get("attention", false)):
@@ -409,7 +418,7 @@ func _render_option_text(option_entries: Array[Dictionary] = []) -> void:
 		else:
 			options_text.add_text(line)
 
-		if index < option_entries.size() - 1:
+		if index < int(visible_range.get("end", 0)) - 1:
 			options_text.newline()
 
 
@@ -424,11 +433,33 @@ func _has_attention_option(option_entries: Array[Dictionary]) -> bool:
 	if str(logic_manager.get_current_ui_page()) != "MAIN":
 		return false
 
-	for entry in option_entries:
+	var selected_index = _get_selected_entry_index(option_entries)
+	var visible_range = _get_visible_option_range(option_entries.size(), selected_index)
+	for index in range(int(visible_range.get("start", 0)), int(visible_range.get("end", 0))):
+		var entry = option_entries[index]
 		if bool(entry.get("attention", false)):
 			return true
 
 	return false
+
+
+func _get_selected_entry_index(entries: Array[Dictionary]) -> int:
+	for index in entries.size():
+		if bool(entries[index].get("selected", false)):
+			return index
+	return 0
+
+
+func _get_visible_option_range(total_count: int, selected_index: int) -> Dictionary:
+	if total_count <= 0:
+		return {"start": 0, "end": 0}
+	if total_count <= MAX_VISIBLE_OPTIONS:
+		return {"start": 0, "end": total_count}
+
+	var clamped_selected = clampi(selected_index, 0, total_count - 1)
+	var start_index = clamped_selected - int(MAX_VISIBLE_OPTIONS / 2)
+	start_index = clampi(start_index, 0, total_count - MAX_VISIBLE_OPTIONS)
+	return {"start": start_index, "end": start_index + MAX_VISIBLE_OPTIONS}
 
 
 func _get_attention_color() -> Color:
